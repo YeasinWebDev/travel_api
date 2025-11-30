@@ -4,6 +4,7 @@ interface QueryOptions {
   page?: number;
   limit?: number;
   search?: string;
+  populate?: string[];
   searchFields?: string[];
   filters?: Record<string, any>;
 }
@@ -18,6 +19,7 @@ export const filterWithPagination = async <T>(
     search,
     searchFields = [],
     filters = {},
+    populate = [],
   } = options;
 
   // ---- Build Query ----
@@ -40,7 +42,7 @@ export const filterWithPagination = async <T>(
 
   // ---- Execute Query ----
   const [data, total] = await Promise.all([
-    model.find(query).skip(skip).limit(limit),
+    model.find(query).skip(skip).limit(limit).populate(populate),
     model.countDocuments(query),
   ]);
 
