@@ -10,5 +10,7 @@ export interface IUser {
   profileImage: string;
   password: string;
   role: IUserRole;
+  travelInterests?: string[];
+  location?: string;
 }
 

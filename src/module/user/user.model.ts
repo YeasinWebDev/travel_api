@@ -25,6 +25,8 @@ const userSchema = new mongoose.Schema<IUser>(
       enum: IUserRole,
       default: IUserRole.USER,
     },
+    travelInterests: [String],
+    location: String,
   },
   {
     timestamps: true,
