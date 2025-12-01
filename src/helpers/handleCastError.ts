@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { TGenericErrorResponse } from "../app/interfaces/error.types";
+import { TGenericErrorResponse } from "../interfaces/error.types";
 
 /**
  * Handles MongoDB CastError.
