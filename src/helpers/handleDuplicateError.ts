@@ -1,4 +1,4 @@
-import { TGenericErrorResponse } from "../app/interfaces/error.types";
+import { TGenericErrorResponse } from "../interfaces/error.types";
 
 
 /**
