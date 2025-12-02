@@ -1,0 +1,13 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.divisionRoute = void 0;
+const express_1 = require("express");
+const division_controller_1 = require("./division.controller");
+const checkAuth_1 = require("../../middlewares/checkAuth");
+const user_interface_1 = require("../user/user.interface");
+exports.divisionRoute = (0, express_1.Router)();
+exports.divisionRoute.get("/", division_controller_1.DivisionController.getAllDivisions);
+exports.divisionRoute.get("/:id", division_controller_1.DivisionController.getDivision);
+exports.divisionRoute.post("/create", (0, checkAuth_1.checkAuth)(user_interface_1.IUserRole.ADMIN), division_controller_1.DivisionController.createDivision);
+exports.divisionRoute.patch("/:id", (0, checkAuth_1.checkAuth)(user_interface_1.IUserRole.ADMIN), division_controller_1.DivisionController.updateDivision);
+exports.divisionRoute.delete("/:id", (0, checkAuth_1.checkAuth)(user_interface_1.IUserRole.ADMIN), division_controller_1.DivisionController.deleteDivision);
