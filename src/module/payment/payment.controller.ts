@@ -4,9 +4,9 @@ import { sendResponse } from "../../utils/sendResponse";
 import { stripe } from "../../helpers/stripe";
 import AppError from "../../errorHelpers/AppError";
 
-const createPayment = (req: Request, res: Response, next: NextFunction) => {
+const createPayment = async(req: Request, res: Response, next: NextFunction) => {
   try {
-    const result = PaymentService.createPayment(req.body, req.user);
+    const result =await PaymentService.createPayment(req.body, req.user);
     sendResponse(res, 200, "Payment created successfully", result);
   } catch (error) {
     next(error);

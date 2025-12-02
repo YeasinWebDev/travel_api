@@ -1,4 +1,3 @@
-import { Types } from "mongoose";
 import AppError from "../../errorHelpers/AppError";
 import { IPrecipitants, ITrip } from "./trip.interface";
 import { Trip } from "./trip.model";
@@ -10,7 +9,7 @@ const createTrip = async (payload: Partial<ITrip>) => {
   const isTripExists = await Trip.findOne({ creator, startDate, endDate });
   if (isTripExists) throw new AppError("Trip already exist in that date", 400);
 
-  const trip = Trip.create(payload);
+  const trip = await Trip.create(payload);
   return trip;
 };
 

@@ -10,6 +10,7 @@ import { destinationRoute } from "./module/destination/destination.route";
 import { tripRouter } from "./module/trip/trip.route";
 import { paymentRouter } from "./module/payment/payment.route";
 import { PaymentController } from "./module/payment/payment.controller";
+import { bookingRoute } from "./module/booking/booking.route";
 
 const app = express();
 
@@ -37,6 +38,7 @@ app.use("/api/v1/division", divisionRoute);
 app.use("/api/v1/destination", destinationRoute);
 app.use("/api/v1/trip", tripRouter);
 app.use("/api/v1/payment", paymentRouter);
+app.use("/api/v1/booking", bookingRoute);
 
 // global error handlers
 app.use(globalErrorHandler);
