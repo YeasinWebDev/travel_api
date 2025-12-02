@@ -4,31 +4,31 @@ import { sendResponse } from "../../utils/sendResponse";
 import { stripe } from "../../helpers/stripe";
 import AppError from "../../errorHelpers/AppError";
 
-const createPayment = async(req: Request, res: Response, next: NextFunction) => {
+const createPayment = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const result =await PaymentService.createPayment(req.body, req.user);
+    const result = await PaymentService.createPayment(req.body, req.user);
     sendResponse(res, 200, "Payment created successfully", result);
   } catch (error) {
     next(error);
   }
 };
 
-const checkWebHook = async(req: Request, res: Response, next: NextFunction) => {
+const checkWebHook = async (req: Request, res: Response, next: NextFunction) => {
   const sig = req.headers["stripe-signature"];
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
   let event;
   try {
     event = stripe.webhooks.constructEvent(req.body, sig as string, webhookSecret!);
-  } catch (error) {
-    throw new AppError("Webhook Error", 400);
+  } catch (error: any) {
+    return res.status(400).send(`Webhook Error: ${error.message}`);
   }
 
-  const result = await PaymentService.checkWebHook(event);
-  sendResponse(res, 200, "Payment created successfully", result);
+  await PaymentService.checkWebHook(event);
+  res.status(200).send("success");
 };
 
 export const PaymentController = {
   createPayment,
-  checkWebHook
+  checkWebHook,
 };
