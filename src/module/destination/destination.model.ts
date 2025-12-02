@@ -49,14 +49,13 @@ const destinationSchema = new mongoose.Schema<IDestination>(
       enum: ["active", "inactive"],
       default: "active",
     },
-    rating: {
-      type: Number,
-      default: 0,
-    },
-    reviewCount: {
-      type: Number,
-      default: 0,
-    },
+    reviews:[
+      {
+        type: Types.ObjectId,
+        ref: "Review",
+        required: false,
+      }
+    ],
     coordinates: {
       lat: {
         type: Number,

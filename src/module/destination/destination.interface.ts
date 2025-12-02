@@ -13,8 +13,7 @@ export interface IDestination {
   activities: string[];
   isFeatured: boolean;
   status: "active" | "inactive";
-  rating?: number;
-  reviewCount?: number;
+  reviews: Types.ObjectId[];
   coordinates?: {
     lat: number;
     lng: number;

@@ -11,6 +11,7 @@ import { tripRouter } from "./module/trip/trip.route";
 import { paymentRouter } from "./module/payment/payment.route";
 import { PaymentController } from "./module/payment/payment.controller";
 import { bookingRoute } from "./module/booking/booking.route";
+import { reviewRouter } from "./module/review/review.route";
 
 const app = express();
 
@@ -27,7 +28,6 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-
 // test route
 app.get("/", (req: Request, res: Response) => {
   res.send("Hello World!");
@@ -39,6 +39,7 @@ app.use("/api/v1/destination", destinationRoute);
 app.use("/api/v1/trip", tripRouter);
 app.use("/api/v1/payment", paymentRouter);
 app.use("/api/v1/booking", bookingRoute);
+app.use("/api/v1/review", reviewRouter);
 
 // global error handlers
 app.use(globalErrorHandler);
