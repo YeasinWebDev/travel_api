@@ -16,7 +16,7 @@ const payment_route_1 = require("./module/payment/payment.route");
 const payment_controller_1 = require("./module/payment/payment.controller");
 const booking_route_1 = require("./module/booking/booking.route");
 const app = (0, express_1.default)();
-app.post("/api/v1/payment/webhook", express_1.default.raw({ type: "application/json" }), payment_controller_1.PaymentController.checkWebHook);
+app.post("/api/v1/webhook", express_1.default.raw({ type: "application/json" }), payment_controller_1.PaymentController.checkWebHook);
 app.use((0, cors_1.default)({
     origin: "http://localhost:3000",
     credentials: true,
