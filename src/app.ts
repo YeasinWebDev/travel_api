@@ -14,7 +14,7 @@ import { bookingRoute } from "./module/booking/booking.route";
 
 const app = express();
 
-app.post("/api/v1/payment/webhook", express.raw({ type: "application/json" }), PaymentController.checkWebHook);
+app.post("/api/v1/webhook", express.raw({ type: "application/json" }), PaymentController.checkWebHook);
 
 app.use(
   cors({
