@@ -21,7 +21,7 @@ const tripSchema = new mongoose_1.default.Schema({
     },
     image: {
         type: String,
-        required: true,
+        required: false,
     },
     creator: {
         type: mongoose_1.default.Schema.Types.ObjectId,

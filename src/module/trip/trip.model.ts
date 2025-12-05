@@ -9,7 +9,7 @@ const tripSchema = new mongoose.Schema<ITrip>(
     },
     image: {
       type: String,
-      required: true,
+      required: false,
     },
     creator: {
       type: mongoose.Schema.Types.ObjectId,

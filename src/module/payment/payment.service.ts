@@ -88,16 +88,16 @@ const checkWebHook = async (event: Stripe.Event) => {
     const trip = await Trip.findById(tripId).session(startSession);
     if (!trip) throw new AppError("Trip does not exist", 400);
 
-    const participant = {
-      user: new mongoose.Types.ObjectId(userId),
-      paymentId: paymentId,
-      numberOfGuests: res.totalPeople,
-      joinedAt: new Date(),
-    };
+    // const participant = {
+    //   user: new mongoose.Types.ObjectId(userId),
+    //   paymentId: paymentId,
+    //   numberOfGuests: res.totalPeople,
+    //   joinedAt: new Date(),
+    // };
 
-    trip.participants = [...(trip?.participants ?? []), participant];
+    // trip.participants = [...(trip?.participants ?? []), participant];
 
-    await trip.save({ session: startSession });
+    // await trip.save({ session: startSession });
 
     await startSession.commitTransaction();
     await startSession.endSession();
