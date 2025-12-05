@@ -2,7 +2,6 @@ import { NextFunction, Request, Response } from "express";
 import { PaymentService } from "./payment.service";
 import { sendResponse } from "../../utils/sendResponse";
 import { stripe } from "../../helpers/stripe";
-import AppError from "../../errorHelpers/AppError";
 
 const createPayment = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -16,6 +15,17 @@ const createPayment = async (req: Request, res: Response, next: NextFunction) =>
 const checkWebHook = async (req: Request, res: Response, next: NextFunction) => {
   const sig = req.headers["stripe-signature"];
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+    let rawBody: Buffer | string;
+  
+  if (Buffer.isBuffer(req.body)) {
+    rawBody = req.body;
+  } else if (typeof req.body === 'string') {
+    rawBody = req.body;
+  } else {
+    console.error("Body is already parsed to JSON!");
+    return res.status(400).send("Webhook Error: Body was parsed as JSON before signature verification");
+  }
 
   let event;
   try {
