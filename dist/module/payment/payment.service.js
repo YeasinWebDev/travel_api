@@ -20,6 +20,7 @@ const stripe_1 = require("../../helpers/stripe");
 const mongoose_1 = __importDefault(require("mongoose"));
 const booking_interface_1 = require("../booking/booking.interface");
 const trip_model_1 = require("../trip/trip.model");
+const booking_model_1 = require("../booking/booking.model");
 const createPayment = (payload, user) => __awaiter(void 0, void 0, void 0, function* () {
     const session = yield mongoose_1.default.startSession();
     session.startTransaction();
@@ -75,7 +76,7 @@ const createPayment = (payload, user) => __awaiter(void 0, void 0, void 0, funct
     }
 });
 const checkWebHook = (event) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b, _c;
+    var _a, _b, _c, _d;
     if (event.type === "checkout.session.completed") {
         const session = event.data.object;
         const paymentId = (_a = session.metadata) === null || _a === void 0 ? void 0 : _a.paymentId;
@@ -88,17 +89,22 @@ const checkWebHook = (event) => __awaiter(void 0, void 0, void 0, function* () {
             throw new AppError_1.default("Payment does not exist", 400);
         res.status = booking_interface_1.IPaymentStatus.SUCCESS;
         yield res.save({ session: startSession });
+        const booking = yield booking_model_1.Booking.findById(res.booking).session(startSession);
+        if (!booking)
+            throw new AppError_1.default("Booking does not exist", 400);
+        booking.paymentStatus = booking_interface_1.IPaymentStatus.SUCCESS;
+        yield booking.save({ session: startSession });
         const trip = yield trip_model_1.Trip.findById(tripId).session(startSession);
         if (!trip)
             throw new AppError_1.default("Trip does not exist", 400);
-        // const participant = {
-        //   user: new mongoose.Types.ObjectId(userId),
-        //   paymentId: paymentId,
-        //   numberOfGuests: res.totalPeople,
-        //   joinedAt: new Date(),
-        // };
-        // trip.participants = [...(trip?.participants ?? []), participant];
-        // await trip.save({ session: startSession });
+        const participant = {
+            user: new mongoose_1.default.Types.ObjectId(userId),
+            paymentId: paymentId,
+            numberOfGuests: res.totalPeople,
+            joinedAt: new Date(),
+        };
+        trip.participants = [...((_d = trip === null || trip === void 0 ? void 0 : trip.participants) !== null && _d !== void 0 ? _d : []), participant];
+        yield trip.save({ session: startSession });
         yield startSession.commitTransaction();
         yield startSession.endSession();
         return true;
