@@ -15,13 +15,14 @@ const trip_route_1 = require("./module/trip/trip.route");
 const payment_route_1 = require("./module/payment/payment.route");
 const payment_controller_1 = require("./module/payment/payment.controller");
 const booking_route_1 = require("./module/booking/booking.route");
+const review_route_1 = require("./module/review/review.route");
 const app = (0, express_1.default)();
 app.post("/api/v1/webhook", express_1.default.raw({ type: "application/json" }), payment_controller_1.PaymentController.checkWebHook);
 app.use((0, cors_1.default)({
     origin: "http://localhost:3000",
     credentials: true,
 }));
-app.set("trust proxy", 1);
+app.set("trust proxy", true);
 app.use((0, cookie_parser_1.default)());
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
@@ -35,6 +36,7 @@ app.use("/api/v1/destination", destination_route_1.destinationRoute);
 app.use("/api/v1/trip", trip_route_1.tripRouter);
 app.use("/api/v1/payment", payment_route_1.paymentRouter);
 app.use("/api/v1/booking", booking_route_1.bookingRoute);
+app.use("/api/v1/review", review_route_1.reviewRouter);
 // global error handlers
 app.use(globalErrorHandler_1.globalErrorHandler);
 app.use(notFound_1.notFound);

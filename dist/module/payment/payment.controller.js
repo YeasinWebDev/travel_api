@@ -25,6 +25,17 @@ const createPayment = (req, res, next) => __awaiter(void 0, void 0, void 0, func
 const checkWebHook = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const sig = req.headers["stripe-signature"];
     const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+    let rawBody;
+    if (Buffer.isBuffer(req.body)) {
+        rawBody = req.body;
+    }
+    else if (typeof req.body === 'string') {
+        rawBody = req.body;
+    }
+    else {
+        console.error("Body is already parsed to JSON!");
+        return res.status(400).send("Webhook Error: Body was parsed as JSON before signature verification");
+    }
     let event;
     try {
         event = stripe_1.stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
