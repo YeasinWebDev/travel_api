@@ -4,13 +4,16 @@ import { IUser } from "./user.interface";
 import { User } from "./user.model";
 import bcrypt from "bcryptjs";
 
-const createUser = async (payload:Partial<IUser>) => {
+const createUser = async (payload:Partial<IUser>,profileImage?:string) => {
     const isExist = await User.findOne({ email: payload.email });
     if(isExist) {
         throw new AppError("User already exist", 400);
     }
     const hashedPassword = await bcrypt.hash(payload.password!,10);
     payload.password = hashedPassword;
+    if(profileImage) {
+        payload.profileImage = profileImage;
+    }
     const user = User.create(payload);
     return user;
 };

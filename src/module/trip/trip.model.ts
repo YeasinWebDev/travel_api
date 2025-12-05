@@ -7,6 +7,10 @@ const tripSchema = new mongoose.Schema<ITrip>(
       type: String,
       required: true,
     },
+    image: {
+      type: String,
+      required: true,
+    },
     creator: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -51,6 +55,10 @@ const tripSchema = new mongoose.Schema<ITrip>(
     isFull: {
       type: Boolean,
       default: false,
+    },
+    capacity: {
+      type: Number,
+      required: true,
     },
     status: {
       type: String,

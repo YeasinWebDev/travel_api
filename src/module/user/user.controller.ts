@@ -4,7 +4,8 @@ import { sendResponse } from "../../utils/sendResponse";
 
 const createUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const result = await UserService.createUser(req.body);
+    const picture = req.file?.path;
+    const result = await UserService.createUser(req.body, picture);
     sendResponse(res, 200, "User created successfully", result);
   } catch (error) {
     next(error);

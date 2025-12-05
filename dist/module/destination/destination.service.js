@@ -16,6 +16,7 @@ const getAllDestinations = (page, limit, search, division, bestTimeToVisit) => {
         page,
         limit,
         search,
+        searchFields: ["name"],
         populate: ["division"],
         filters: { division, bestTimeToVisit },
     });

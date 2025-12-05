@@ -2,14 +2,20 @@ import AppError from "../../errorHelpers/AppError";
 import { IPrecipitants, ITrip } from "./trip.interface";
 import { Trip } from "./trip.model";
 import { filterWithPagination } from "../../utils/filterWithPagination";
+import { JwtPayload } from "jsonwebtoken";
 
-const createTrip = async (payload: Partial<ITrip>) => {
-  const { startDate, endDate, creator } = payload;
+const createTrip = async (user: JwtPayload, payload: Partial<ITrip>, image: string) => {
+  const { startDate, endDate } = payload;
 
-  const isTripExists = await Trip.findOne({ creator, startDate, endDate });
+  const isTripExists = await Trip.findOne({ creator: user.userId, startDate, endDate });
   if (isTripExists) throw new AppError("Trip already exist in that date", 400);
 
-  const trip = await Trip.create(payload);
+  const isDestinationExists = await Trip.findOne({ destination: payload.destination });
+
+  if (!isDestinationExists) throw new AppError("Destination does not exist", 400);
+
+  const dataPayload = { ...payload, creator: user.userId, image };
+  const trip = await Trip.create(dataPayload);
   return trip;
 };
 
@@ -22,7 +28,7 @@ const addParticipant = async (payload: IPrecipitants, tripId: string) => {
   // if (trip.isFull) throw new AppError("Trip is full", 400);
 
   // let totalGuests = 0;
-  
+
   // trip.participants.forEach((participant) => {
   //   totalGuests += participant.numberOfGuests;
   // });
@@ -51,13 +57,13 @@ const deleteTrip = async (tripId: string) => {
   return trip;
 };
 
-const getAllTrip = async (page: number, limit: number, search: string) => {
-  const trips = await filterWithPagination(Trip, { page, limit, search, searchFields: ["title"] });
+const getAllTrip = async (page: number, limit: number, search: string, startDate: string = "", endDate: string = "") => {
+  const trips = await filterWithPagination(Trip, { page, limit, search, searchFields: ["title"], populate: ["creator", "destination"], filters: { startDate, endDate } });
   return trips;
 };
 
 const getTrip = async (tripId: string) => {
-  const trip = await Trip.findById(tripId);
+  const trip = await Trip.findById(tripId).populate("creator").populate("destination");
   if (!trip) throw new AppError("Trip does not exist", 400);
   return trip;
 };

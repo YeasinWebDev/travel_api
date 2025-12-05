@@ -13,11 +13,13 @@ exports.TripController = void 0;
 const sendResponse_1 = require("../../utils/sendResponse");
 const trip_service_1 = require("./trip.service");
 const createTrip = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
-        const result = yield trip_service_1.TripService.createTrip(req.body);
+        const result = yield trip_service_1.TripService.createTrip(req.user, req.body, (_a = req === null || req === void 0 ? void 0 : req.file) === null || _a === void 0 ? void 0 : _a.path);
         (0, sendResponse_1.sendResponse)(res, 200, "Trip created successfully", result);
     }
     catch (error) {
+        console.log(error);
         next(error);
     }
 });
@@ -50,8 +52,8 @@ const deleteTrip = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
 });
 const getAllTrip = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { page, limit, search } = req.query;
-        const result = yield trip_service_1.TripService.getAllTrip(parseInt(page || "1"), parseInt(limit || "10"), search);
+        const { page, limit, trip, startDate, endDate } = req.query;
+        const result = yield trip_service_1.TripService.getAllTrip(parseInt(page || "1"), parseInt(limit || "3"), trip, startDate, endDate);
         (0, sendResponse_1.sendResponse)(res, 200, "Trip fetched successfully", result);
     }
     catch (error) {

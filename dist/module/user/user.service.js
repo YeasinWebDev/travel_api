@@ -17,13 +17,16 @@ const AppError_1 = __importDefault(require("../../errorHelpers/AppError"));
 const userToken_1 = require("../../utils/userToken");
 const user_model_1 = require("./user.model");
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
-const createUser = (payload) => __awaiter(void 0, void 0, void 0, function* () {
+const createUser = (payload, profileImage) => __awaiter(void 0, void 0, void 0, function* () {
     const isExist = yield user_model_1.User.findOne({ email: payload.email });
     if (isExist) {
         throw new AppError_1.default("User already exist", 400);
     }
     const hashedPassword = yield bcryptjs_1.default.hash(payload.password, 10);
     payload.password = hashedPassword;
+    if (profileImage) {
+        payload.profileImage = profileImage;
+    }
     const user = user_model_1.User.create(payload);
     return user;
 });

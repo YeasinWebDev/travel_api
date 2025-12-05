@@ -16,12 +16,16 @@ exports.TripService = void 0;
 const AppError_1 = __importDefault(require("../../errorHelpers/AppError"));
 const trip_model_1 = require("./trip.model");
 const filterWithPagination_1 = require("../../utils/filterWithPagination");
-const createTrip = (payload) => __awaiter(void 0, void 0, void 0, function* () {
-    const { startDate, endDate, creator } = payload;
-    const isTripExists = yield trip_model_1.Trip.findOne({ creator, startDate, endDate });
+const createTrip = (user, payload, image) => __awaiter(void 0, void 0, void 0, function* () {
+    const { startDate, endDate } = payload;
+    const isTripExists = yield trip_model_1.Trip.findOne({ creator: user.userId, startDate, endDate });
     if (isTripExists)
         throw new AppError_1.default("Trip already exist in that date", 400);
-    const trip = yield trip_model_1.Trip.create(payload);
+    const isDestinationExists = yield trip_model_1.Trip.findOne({ destination: payload.destination });
+    if (!isDestinationExists)
+        throw new AppError_1.default("Destination does not exist", 400);
+    const dataPayload = Object.assign(Object.assign({}, payload), { creator: user.userId, image });
+    const trip = yield trip_model_1.Trip.create(dataPayload);
     return trip;
 });
 const addParticipant = (payload, tripId) => __awaiter(void 0, void 0, void 0, function* () {
@@ -54,12 +58,12 @@ const deleteTrip = (tripId) => __awaiter(void 0, void 0, void 0, function* () {
     const trip = trip_model_1.Trip.findByIdAndDelete(tripId);
     return trip;
 });
-const getAllTrip = (page, limit, search) => __awaiter(void 0, void 0, void 0, function* () {
-    const trips = yield (0, filterWithPagination_1.filterWithPagination)(trip_model_1.Trip, { page, limit, search, searchFields: ["title"] });
+const getAllTrip = (page_1, limit_1, search_1, ...args_1) => __awaiter(void 0, [page_1, limit_1, search_1, ...args_1], void 0, function* (page, limit, search, startDate = "", endDate = "") {
+    const trips = yield (0, filterWithPagination_1.filterWithPagination)(trip_model_1.Trip, { page, limit, search, searchFields: ["title"], populate: ["creator", "destination"], filters: { startDate, endDate } });
     return trips;
 });
 const getTrip = (tripId) => __awaiter(void 0, void 0, void 0, function* () {
-    const trip = yield trip_model_1.Trip.findById(tripId);
+    const trip = yield trip_model_1.Trip.findById(tripId).populate("creator").populate("destination");
     if (!trip)
         throw new AppError_1.default("Trip does not exist", 400);
     return trip;

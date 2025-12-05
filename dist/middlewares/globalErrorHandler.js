@@ -56,6 +56,7 @@ const globalErrorHandler = (err, req, res, next) => __awaiter(void 0, void 0, vo
             message = (_c = error.message) !== null && _c !== void 0 ? _c : "Something Went Wrong!!";
         }
     }
+    console.log(err);
     res.status(statusCode).json({
         success: false,
         message,

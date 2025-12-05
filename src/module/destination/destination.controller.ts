@@ -13,7 +13,7 @@ const createDivision = async(req: Request, res: Response, next: NextFunction) =>
 
 const getAllDestinations = async(req: Request, res: Response, next: NextFunction) => {
   try {
-    const result = await DestinationService.getAllDestinations(parseInt(req.query.page as string), parseInt(req.query.limit as string), req.query.search as string, req.query.division as string , req.query.bestTimeToVisit as string);
+    const result = await DestinationService.getAllDestinations(parseInt(req.query.page as string || "1"), parseInt(req.query.limit as string || "3" ), req.query.destination as string, req.query.division as string , req.query.bestTimeToVisit as string);
     sendResponse(res, 200, "Division fetched successfully", result);
   } catch (error) {
     next(error);

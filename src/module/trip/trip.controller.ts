@@ -4,9 +4,10 @@ import { TripService } from "./trip.service";
 
 const createTrip = async(req: Request, res: Response, next: NextFunction) => {
   try {
-    const result = await TripService.createTrip(req.body);
+    const result = await TripService.createTrip( req.user,req.body, req?.file?.path as string); 
     sendResponse(res, 200, "Trip created successfully", result);
   } catch (error) {
+    console.log(error)
     next(error);
   }
 };
@@ -40,8 +41,8 @@ const deleteTrip = async(req: Request, res: Response, next: NextFunction) => {
 
 const getAllTrip = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { page, limit, search } = req.query;
-    const result = await TripService.getAllTrip( parseInt(page as string || "1"), parseInt(limit as string || "10"), search as string);
+    const { page, limit, trip , startDate, endDate } = req.query;
+    const result = await TripService.getAllTrip( parseInt(page as string || "1"), parseInt(limit as string || "3"), trip as string , startDate as string, endDate as string);
     sendResponse(res, 200, "Trip fetched successfully", result);
   } catch (error) {
     next(error);

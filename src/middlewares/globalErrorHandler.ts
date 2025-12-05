@@ -44,7 +44,7 @@ export const globalErrorHandler = async (err: unknown,req: Request, res: Respons
       message = error.message ?? "Something Went Wrong!!";
     }
   }
-
+console.log(err)
   res.status(statusCode).json({
     success: false,
     message,

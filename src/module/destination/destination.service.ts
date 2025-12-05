@@ -13,6 +13,7 @@ const getAllDestinations = (page: number, limit: number, search: string, divisio
     page,
     limit,
     search,
+    searchFields: ["name"],
     populate: ["division"],
     filters: { division, bestTimeToVisit },
   });

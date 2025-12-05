@@ -13,8 +13,10 @@ exports.UserController = void 0;
 const user_service_1 = require("./user.service");
 const sendResponse_1 = require("../../utils/sendResponse");
 const createUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
-        const result = yield user_service_1.UserService.createUser(req.body);
+        const picture = (_a = req.file) === null || _a === void 0 ? void 0 : _a.path;
+        const result = yield user_service_1.UserService.createUser(req.body, picture);
         (0, sendResponse_1.sendResponse)(res, 200, "User created successfully", result);
     }
     catch (error) {

@@ -19,6 +19,10 @@ const tripSchema = new mongoose_1.default.Schema({
         type: String,
         required: true,
     },
+    image: {
+        type: String,
+        required: true,
+    },
     creator: {
         type: mongoose_1.default.Schema.Types.ObjectId,
         ref: "User",
@@ -61,6 +65,10 @@ const tripSchema = new mongoose_1.default.Schema({
     isFull: {
         type: Boolean,
         default: false,
+    },
+    capacity: {
+        type: Number,
+        required: true,
     },
     status: {
         type: String,
