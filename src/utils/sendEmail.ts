@@ -25,6 +25,8 @@ interface SendMailOptions {
   }[];
 }
 
+console.log(process.env.SMTP_USER , process.env.SMTP_PASS, process.env.SMTP_PORT, process.env.SMTP_HOST);
+
 export const sendEmail = async ({ to, subject, templateName, templateData, attachments }: SendMailOptions) => {
   try {
     const templetpath = path.join(__dirname, `templates/${templateName}.ejs`);
