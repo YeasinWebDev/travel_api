@@ -25,8 +25,6 @@ interface SendMailOptions {
   }[];
 }
 
-console.log(process.env.SMTP_USER , process.env.SMTP_PASS, process.env.SMTP_PORT, process.env.SMTP_HOST);
-
 export const sendEmail = async ({ to, subject, templateName, templateData, attachments }: SendMailOptions) => {
   try {
     const templetpath = path.join(__dirname, `templates/${templateName}.ejs`);
@@ -45,6 +43,8 @@ export const sendEmail = async ({ to, subject, templateName, templateData, attac
 
     console.log(`\u2709\uFE0F Email sent to ${to}: ${info?.messageId}`);
   } catch (error) {
+    console.log(process.env.SMTP_USER, process.env.SMTP_PASS, process.env.SMTP_PORT, process.env.SMTP_HOST);
+
     console.log("error", error);
     throw new AppError("Email error", 400);
   }
