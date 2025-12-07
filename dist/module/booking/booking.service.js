@@ -15,10 +15,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.BookingService = void 0;
 const AppError_1 = __importDefault(require("../../errorHelpers/AppError"));
 const filterWithPagination_1 = require("../../utils/filterWithPagination");
+const payment_service_1 = require("../payment/payment.service");
 const booking_model_1 = require("./booking.model");
-const createBooking = (payload) => __awaiter(void 0, void 0, void 0, function* () {
+const createBooking = (payload, user) => __awaiter(void 0, void 0, void 0, function* () {
     const booking = yield booking_model_1.Booking.create(payload);
-    return booking;
+    const paymentPayload = { booking: booking._id, totalPeople: payload.numberOfGuests, amount: payload.amount };
+    const payment = yield payment_service_1.PaymentService.createPayment(paymentPayload, user);
+    return payment;
 });
 const getAllBookings = (page, limit) => __awaiter(void 0, void 0, void 0, function* () {
     const bookings = yield (0, filterWithPagination_1.filterWithPagination)(booking_model_1.Booking, { page: 1, limit: 10 });

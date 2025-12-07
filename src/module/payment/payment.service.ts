@@ -9,6 +9,10 @@ import mongoose, { Types } from "mongoose";
 import { IPaymentStatus } from "../booking/booking.interface";
 import { Trip } from "../trip/trip.model";
 import { Booking } from "../booking/booking.model";
+import { sendEmail } from "../../utils/sendEmail";
+import { IUser } from "../user/user.interface";
+import { uploadBufferToCloudinary } from "../../config/cloudinary.config";
+import { generatePdf } from "../../utils/invoice";
 
 const createPayment = async (payload: Partial<IPayment>, user: JwtPayload) => {
   const session = await mongoose.startSession();
@@ -53,7 +57,7 @@ const createPayment = async (payload: Partial<IPayment>, user: JwtPayload) => {
         tripId: trip._id.toString(),
         userId: userData._id.toString(),
       },
-      success_url: `${process.env.FRONTEND_URL}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${process.env.FRONTEND_URL}/payment-success?session_id={CHECKOUT_SESSION_ID}&paymentId=${payment._id}`,
       cancel_url: `${process.env.FRONTEND_URL}/payment-failed`,
     });
 
@@ -84,9 +88,10 @@ const checkWebHook = async (event: Stripe.Event) => {
     if (!res) throw new AppError("Payment does not exist", 400);
 
     res.status = IPaymentStatus.SUCCESS;
+    res.paymentGatewayData = session.payment_intent;
     await res.save({ session: startSession });
 
-    const booking = await Booking.findById(res.booking).session(startSession);
+    const booking = await Booking.findById(res.booking).populate("user").session(startSession);
     if (!booking) throw new AppError("Booking does not exist", 400);
 
     booking.paymentStatus = IPaymentStatus.SUCCESS;
@@ -106,6 +111,35 @@ const checkWebHook = async (event: Stripe.Event) => {
 
     await trip.save({ session: startSession });
 
+     const invoiceData = {
+      bookingId: booking._id.toString(),
+      bookingDate: booking.createdAt,
+      userName: (booking.user as unknown as IUser).name ,
+      tourTitle: trip.title,
+      guestCount: res.totalPeople,
+      totalAmount: res.amount,
+    };
+
+     const pdfBuffer = await generatePdf(invoiceData);
+
+    const cloudinaryResult = await uploadBufferToCloudinary(pdfBuffer, "invoice");
+
+    await Payment.findByIdAndUpdate(res?._id, { invoiceUrl: cloudinaryResult?.secure_url }, { runValidators: true, session: startSession });
+
+     await sendEmail({
+      to: (booking?.user as unknown as IUser).email,
+      subject: "Your Booking Invoice",
+      templateName: "invoice",
+      templateData: invoiceData,
+      attachments: [
+        {
+          filename: "invoice.pdf",
+          content: pdfBuffer,
+          contentType: "application/pdf",
+        },
+      ],
+    });
+
     await startSession.commitTransaction();
     await startSession.endSession();
 
@@ -115,4 +149,20 @@ const checkWebHook = async (event: Stripe.Event) => {
   return false;
 };
 
-export const PaymentService = { createPayment, checkWebHook };
+const getPaymentById = async (paymentId: string) => {
+  const payment = await Payment.findById(paymentId).populate("booking");
+  let booking = await Booking.findById(payment?.booking).populate("trip").populate("user");
+  const tripData = await Trip.findById(booking?.trip).populate("destination");
+  // booking = {
+  //   ...booking,
+  //   trip: {
+  //     ...booking!.trip,
+  //     destination: tripData?.destination,
+  //   },
+  // };
+
+  if (!payment) throw new AppError("Payment does not exist", 400);
+  return { payment, booking };
+};
+
+export const PaymentService = { createPayment, checkWebHook, getPaymentById };

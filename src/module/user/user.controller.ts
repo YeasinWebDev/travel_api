@@ -35,7 +35,7 @@ const loginUser = async (req: Request, res: Response, next: NextFunction) => {
 
 const me = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const result = await UserService.me(req.params.email);
+    const result = await UserService.me(req.user.email);
     sendResponse(res, 200, "User fetched successfully", result);
   } catch (error) {
     next(error);

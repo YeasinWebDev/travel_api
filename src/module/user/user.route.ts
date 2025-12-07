@@ -7,7 +7,8 @@ import { malterUpload } from "../../helpers/fileUploder";
 
 export const userRouter = Router();
 
-userRouter.get("/:email", UserController.me);
+userRouter.get("/me", checkAuth(IUserRole.ADMIN, IUserRole.USER), UserController.me);
+// userRouter.get("/:email", UserController.me);
 userRouter.post("/create", malterUpload.single("image"), (req:Request, res:Response, next:NextFunction) => {
   req.body = createUserSchema.parse(JSON.parse(req.body.data));
   return UserController.createUser(req, res, next);

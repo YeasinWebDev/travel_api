@@ -23,6 +23,10 @@ const paymentSchema = new mongoose.Schema<IPayment>(
       enum: IPaymentStatus,
       default: IPaymentStatus.PENDING,
     },
+    invoiceUrl:{
+      type: String,
+      required:false
+    }
   },
   {
     timestamps: true,

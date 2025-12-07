@@ -26,6 +26,10 @@ const paymentSchema = new mongoose_1.default.Schema({
         enum: booking_interface_1.IPaymentStatus,
         default: booking_interface_1.IPaymentStatus.PENDING,
     },
+    invoiceUrl: {
+        type: String,
+        required: false
+    }
 }, {
     timestamps: true,
     versionKey: false,

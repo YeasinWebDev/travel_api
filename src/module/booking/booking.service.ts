@@ -1,12 +1,17 @@
+import { JwtPayload } from "jsonwebtoken";
 import AppError from "../../errorHelpers/AppError";
 import { filterWithPagination } from "../../utils/filterWithPagination";
+import { Payment } from "../payment/payment.model";
+import { PaymentService } from "../payment/payment.service";
 import { IBooking } from "./booking.interface";
 import { Booking } from "./booking.model";
 
-const createBooking = async (payload: Partial<IBooking>) => {
+const createBooking = async (payload: Partial<IBooking>,user:JwtPayload) => {
     const booking = await Booking.create(payload);
-    return booking;
-};
+    const paymentPayload ={booking: booking._id,totalPeople: payload.numberOfGuests,amount: payload.amount};
+    const payment = await PaymentService.createPayment(paymentPayload,user);
+    return payment;
+};  
 
 const getAllBookings = async (page: number, limit: number) => {
     const bookings = await filterWithPagination(Booking, { page: 1, limit: 10 });

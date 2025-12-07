@@ -14,7 +14,8 @@ const sendResponse_1 = require("../../utils/sendResponse");
 const booking_service_1 = require("./booking.service");
 const createBooking = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const result = yield booking_service_1.BookingService.createBooking(req.body);
+        const payload = Object.assign(Object.assign({}, req.body), { user: req.user.userId });
+        const result = yield booking_service_1.BookingService.createBooking(payload, req.user);
         (0, sendResponse_1.sendResponse)(res, 200, "Trip created successfully", result);
     }
     catch (error) {

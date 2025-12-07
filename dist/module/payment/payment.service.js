@@ -21,6 +21,9 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const booking_interface_1 = require("../booking/booking.interface");
 const trip_model_1 = require("../trip/trip.model");
 const booking_model_1 = require("../booking/booking.model");
+const sendEmail_1 = require("../../utils/sendEmail");
+const cloudinary_config_1 = require("../../config/cloudinary.config");
+const invoice_1 = require("../../utils/invoice");
 const createPayment = (payload, user) => __awaiter(void 0, void 0, void 0, function* () {
     const session = yield mongoose_1.default.startSession();
     session.startTransaction();
@@ -62,7 +65,7 @@ const createPayment = (payload, user) => __awaiter(void 0, void 0, void 0, funct
                 tripId: trip._id.toString(),
                 userId: userData._id.toString(),
             },
-            success_url: `${process.env.FRONTEND_URL}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+            success_url: `${process.env.FRONTEND_URL}/payment-success?session_id={CHECKOUT_SESSION_ID}&paymentId=${payment._id}`,
             cancel_url: `${process.env.FRONTEND_URL}/payment-failed`,
         });
         yield session.commitTransaction();
@@ -88,8 +91,9 @@ const checkWebHook = (event) => __awaiter(void 0, void 0, void 0, function* () {
         if (!res)
             throw new AppError_1.default("Payment does not exist", 400);
         res.status = booking_interface_1.IPaymentStatus.SUCCESS;
+        res.paymentGatewayData = session.payment_intent;
         yield res.save({ session: startSession });
-        const booking = yield booking_model_1.Booking.findById(res.booking).session(startSession);
+        const booking = yield booking_model_1.Booking.findById(res.booking).populate("user").session(startSession);
         if (!booking)
             throw new AppError_1.default("Booking does not exist", 400);
         booking.paymentStatus = booking_interface_1.IPaymentStatus.SUCCESS;
@@ -105,10 +109,49 @@ const checkWebHook = (event) => __awaiter(void 0, void 0, void 0, function* () {
         };
         trip.participants = [...((_d = trip === null || trip === void 0 ? void 0 : trip.participants) !== null && _d !== void 0 ? _d : []), participant];
         yield trip.save({ session: startSession });
+        const invoiceData = {
+            bookingId: booking._id.toString(),
+            bookingDate: booking.createdAt,
+            userName: booking.user.name,
+            tourTitle: trip.title,
+            guestCount: res.totalPeople,
+            totalAmount: res.amount,
+        };
+        const pdfBuffer = yield (0, invoice_1.generatePdf)(invoiceData);
+        const cloudinaryResult = yield (0, cloudinary_config_1.uploadBufferToCloudinary)(pdfBuffer, "invoice");
+        yield payment_model_1.Payment.findByIdAndUpdate(res === null || res === void 0 ? void 0 : res._id, { invoiceUrl: cloudinaryResult === null || cloudinaryResult === void 0 ? void 0 : cloudinaryResult.secure_url }, { runValidators: true, session: startSession });
+        yield (0, sendEmail_1.sendEmail)({
+            to: (booking === null || booking === void 0 ? void 0 : booking.user).email,
+            subject: "Your Booking Invoice",
+            templateName: "invoice",
+            templateData: invoiceData,
+            attachments: [
+                {
+                    filename: "invoice.pdf",
+                    content: pdfBuffer,
+                    contentType: "application/pdf",
+                },
+            ],
+        });
         yield startSession.commitTransaction();
         yield startSession.endSession();
         return true;
     }
     return false;
 });
-exports.PaymentService = { createPayment, checkWebHook };
+const getPaymentById = (paymentId) => __awaiter(void 0, void 0, void 0, function* () {
+    const payment = yield payment_model_1.Payment.findById(paymentId).populate("booking");
+    let booking = yield booking_model_1.Booking.findById(payment === null || payment === void 0 ? void 0 : payment.booking).populate("trip").populate("user");
+    const tripData = yield trip_model_1.Trip.findById(booking === null || booking === void 0 ? void 0 : booking.trip).populate("destination");
+    // booking = {
+    //   ...booking,
+    //   trip: {
+    //     ...booking!.trip,
+    //     destination: tripData?.destination,
+    //   },
+    // };
+    if (!payment)
+        throw new AppError_1.default("Payment does not exist", 400);
+    return { payment, booking };
+});
+exports.PaymentService = { createPayment, checkWebHook, getPaymentById };

@@ -38,7 +38,18 @@ const checkWebHook = async (req: Request, res: Response, next: NextFunction) => 
   res.status(200).send("success");
 };
 
+
+const getPaymentById = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const result = await PaymentService.getPaymentById(req.params.id);
+    sendResponse(res, 200, "Payment created successfully", result);
+  } catch (error) {
+    next(error);
+  }
+}
+
 export const PaymentController = {
   createPayment,
   checkWebHook,
+  getPaymentById
 };

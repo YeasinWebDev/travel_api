@@ -44,7 +44,7 @@ const loginUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function
 });
 const me = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const result = yield user_service_1.UserService.me(req.params.email);
+        const result = yield user_service_1.UserService.me(req.user.email);
         (0, sendResponse_1.sendResponse)(res, 200, "User fetched successfully", result);
     }
     catch (error) {

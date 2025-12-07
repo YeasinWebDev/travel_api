@@ -13,6 +13,7 @@ export enum IBookingStatus {
 export interface IBooking extends Document {
   trip: Types.ObjectId;
   user: Types.ObjectId;
+  numberOfGuests: number;
   amount: number;
   paymentStatus: IPaymentStatus;
   bookingStatus: IBookingStatus;

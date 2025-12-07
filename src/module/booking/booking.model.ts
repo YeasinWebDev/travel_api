@@ -16,6 +16,10 @@ const bookingSchema = new mongoose.Schema<IBooking>({
         type: Number,
         required: true,
     },
+    numberOfGuests:{
+        type: Number,
+        required: true
+    },
     paymentStatus: {
         type: String,
         enum: IPaymentStatus,

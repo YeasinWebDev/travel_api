@@ -46,7 +46,17 @@ const checkWebHook = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
     yield payment_service_1.PaymentService.checkWebHook(event);
     res.status(200).send("success");
 });
+const getPaymentById = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const result = yield payment_service_1.PaymentService.getPaymentById(req.params.id);
+        (0, sendResponse_1.sendResponse)(res, 200, "Payment created successfully", result);
+    }
+    catch (error) {
+        next(error);
+    }
+});
 exports.PaymentController = {
     createPayment,
     checkWebHook,
+    getPaymentById
 };

@@ -6,6 +6,7 @@ export interface IPayment extends Document {
   paymentGatewayData?: any;
   totalPeople: number;
   amount: number;
-  status: IPaymentStatus
+  status: IPaymentStatus;
+  invoiceUrl?: string;
   createdAt: Date;
 }
