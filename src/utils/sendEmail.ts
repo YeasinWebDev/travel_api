@@ -6,7 +6,7 @@ import AppError from "../errorHelpers/AppError";
 const transporter = nodemailer.createTransport({
   auth: {
     user: process.env.SMTP_USER!,
-    pass: process.env.SMTP_PASS!!,
+    pass: process.env.SMTP_PASS!,
   },
   secure: true,
   port: Number(process.env.SMTP_PORT!),
