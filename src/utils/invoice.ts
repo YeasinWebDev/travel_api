@@ -29,7 +29,7 @@ export const generatePdf = async (invoiceData: Invoice): Promise<Buffer> => {
       doc
         .fontSize(26)
         .fillColor("#333333")
-        .text("Dream Tours Ltd.", { align: "center", underline: true });
+        .text("Way fare Ltd.", { align: "center", underline: true });
       doc.moveDown(1);
 
       doc
