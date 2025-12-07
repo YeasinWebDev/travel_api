@@ -73,81 +73,99 @@ const createPayment = async (payload: Partial<IPayment>, user: JwtPayload) => {
 };
 
 const checkWebHook = async (event: Stripe.Event) => {
-  if (event.type === "checkout.session.completed") {
-    const session = event.data.object as Stripe.Checkout.Session;
+  if (event.type !== "checkout.session.completed") return false;
 
-    const paymentId = session.metadata?.paymentId as string;
-    const tripId = session.metadata?.tripId as string;
-    const userId = session.metadata?.userId as string;
+  const session = event.data.object as Stripe.Checkout.Session;
 
-    const startSession = await mongoose.startSession();
+  const paymentId = session.metadata?.paymentId!;
+  const tripId = session.metadata?.tripId!;
+  const userId = session.metadata?.userId!;
 
-    startSession.startTransaction();
+  const mongoSession = await mongoose.startSession();
+  mongoSession.startTransaction();
 
-    const res = await Payment.findById(paymentId).session(startSession);
-    if (!res) throw new AppError("Payment does not exist", 400);
+  let booking: any;
+  let trip: any;
+  let payment: any;
 
-    res.status = IPaymentStatus.SUCCESS;
-    res.paymentGatewayData = session.payment_intent;
-    await res.save({ session: startSession });
+  try {
+    // PHASE 1 — DATABASE ONLY (fast)
+    payment = await Payment.findById(paymentId).session(mongoSession);
+    if (!payment) throw new AppError("Payment does not exist", 400);
 
-    const booking = await Booking.findById(res.booking).populate("user").session(startSession);
+    payment.status = IPaymentStatus.SUCCESS;
+    payment.paymentGatewayData = session.payment_intent;
+    await payment.save({ session: mongoSession });
+
+    booking = await Booking.findById(payment.booking)
+      .populate("user")
+      .session(mongoSession);
     if (!booking) throw new AppError("Booking does not exist", 400);
 
     booking.paymentStatus = IPaymentStatus.SUCCESS;
-    await booking.save({ session: startSession });
+    await booking.save({ session: mongoSession });
 
-    const trip = await Trip.findById(tripId).session(startSession);
+    trip = await Trip.findById(tripId).session(mongoSession);
     if (!trip) throw new AppError("Trip does not exist", 400);
 
     const participant = {
       user: new mongoose.Types.ObjectId(userId),
-      paymentId: paymentId,
-      numberOfGuests: res.totalPeople,
+      paymentId,
+      numberOfGuests: payment.totalPeople,
       joinedAt: new Date(),
     };
 
-    trip.participants = [...(trip?.participants ?? []), participant];
+    trip.participants = [...(trip.participants ?? []), participant];
+    await trip.save({ session: mongoSession });
 
-    await trip.save({ session: startSession });
-
-     const invoiceData = {
-      bookingId: booking._id.toString(),
-      bookingDate: booking.createdAt,
-      userName: (booking.user as unknown as IUser).name ,
-      tourTitle: trip.title,
-      guestCount: res.totalPeople,
-      totalAmount: res.amount,
-    };
-
-     const pdfBuffer = await generatePdf(invoiceData);
-
-    const cloudinaryResult = await uploadBufferToCloudinary(pdfBuffer, "invoice");
-
-    await Payment.findByIdAndUpdate(res?._id, { invoiceUrl: cloudinaryResult?.secure_url }, { runValidators: true, session: startSession });
-
-     await sendEmail({
-      to: (booking?.user as unknown as IUser).email,
-      subject: "Your Booking Invoice",
-      templateName: "invoice",
-      templateData: invoiceData,
-      attachments: [
-        {
-          filename: "invoice.pdf",
-          content: pdfBuffer,
-          contentType: "application/pdf",
-        },
-      ],
-    });
-
-    await startSession.commitTransaction();
-    await startSession.endSession();
-
-    return true;
+    // Commit only database operations
+    await mongoSession.commitTransaction();
+  } catch (err) {
+    await mongoSession.abortTransaction();
+    throw err;
+  } finally {
+    mongoSession.endSession();
   }
 
-  return false;
+  // PHASE 2 — OUTSIDE TRANSACTION (no conflicts)
+  const invoiceData = {
+    bookingId: booking._id.toString(),
+    bookingDate: booking.createdAt,
+    userName: booking.user.name,
+    tourTitle: trip.title,
+    guestCount: payment.totalPeople,
+    totalAmount: payment.amount,
+  };
+
+  // Generate PDF
+  const pdfBuffer = await generatePdf(invoiceData);
+
+  // Upload to Cloudinary
+  const cloudinaryResult = await uploadBufferToCloudinary(pdfBuffer, "invoice");
+
+  // Save invoice URL (simple atomic update)
+  await Payment.findByIdAndUpdate(paymentId, {
+    invoiceUrl: cloudinaryResult!.secure_url,
+  });
+
+  // Send email
+  await sendEmail({
+    to: booking.user.email,
+    subject: "Your Booking Invoice",
+    templateName: "invoice",
+    templateData: invoiceData,
+    attachments: [
+      {
+        filename: "invoice.pdf",
+        content: pdfBuffer,
+        contentType: "application/pdf",
+      },
+    ],
+  });
+
+  return true;
 };
+
 
 const getPaymentById = async (paymentId: string) => {
   const payment = await Payment.findById(paymentId).populate("booking");
