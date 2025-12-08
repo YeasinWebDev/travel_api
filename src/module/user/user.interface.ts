@@ -12,5 +12,6 @@ export interface IUser {
   role: IUserRole;
   travelInterests?: string[];
   location?: string;
+  status?: "active" | "inactive";
 }
 

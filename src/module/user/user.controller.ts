@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { UserService } from "./user.service";
 import { sendResponse } from "../../utils/sendResponse";
+import { JwtPayload } from "jsonwebtoken";
 
 const createUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -26,7 +27,7 @@ const loginUser = async (req: Request, res: Response, next: NextFunction) => {
       secure: true,
       sameSite: "none",
     });
-    
+
     sendResponse(res, 200, "User logged in successfully", result);
   } catch (error) {
     next(error);
@@ -60,4 +61,26 @@ const deleteUser = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-export const UserController = { createUser, loginUser, me, updateUser, deleteUser };
+const getAll = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { page, limit, search } = req.query;
+
+    const result = await UserService.getAll(parseInt((page as string) || "1"), parseInt((limit as string) || "5"), search as string , req.user as JwtPayload);
+    sendResponse(res, 200, "Users fetched successfully", result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const updateUserStatus = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { status } = req.body;
+    const { email } = req.params;
+    const result = await UserService.updateUserStatus(email, status);
+    sendResponse(res, 200, "User status updated successfully", result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const UserController = { createUser, loginUser, me, updateUser, deleteUser  , getAll,updateUserStatus };

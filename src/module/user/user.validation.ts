@@ -5,5 +5,6 @@ export const createUserSchema = z.object({
     email: z.string().email(),
     password: z.string().min(6),
     travelInterests: z.array(z.string()).optional(),
-    location: z.string().optional()
+    location: z.string().optional(),
+    role: z.string().optional(),
 });

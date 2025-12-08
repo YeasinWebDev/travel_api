@@ -7,6 +7,7 @@ import { malterUpload } from "../../helpers/fileUploder";
 
 export const userRouter = Router();
 
+userRouter.get("/", checkAuth(IUserRole.ADMIN), UserController.getAll);
 userRouter.get("/me", checkAuth(IUserRole.ADMIN, IUserRole.USER), UserController.me);
 // userRouter.get("/:email", UserController.me);
 userRouter.post("/create", malterUpload.single("image"), (req:Request, res:Response, next:NextFunction) => {
@@ -14,5 +15,6 @@ userRouter.post("/create", malterUpload.single("image"), (req:Request, res:Respo
   return UserController.createUser(req, res, next);
 });
 userRouter.post("/login", UserController.loginUser);
-userRouter.patch("/:email", UserController.updateUser);
+userRouter.patch("/status/:email", checkAuth(IUserRole.ADMIN), UserController.updateUserStatus);
+userRouter.patch("/:email",checkAuth(IUserRole.ADMIN,IUserRole.USER), UserController.updateUser);
 userRouter.delete("/:email", checkAuth(IUserRole.ADMIN), UserController.deleteUser);

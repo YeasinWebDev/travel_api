@@ -23,6 +23,10 @@ export const checkAuth =
         throw new AppError("User does not exist", 400);
       }
 
+      if (isUserExist.status === "inactive") {
+        throw new AppError("User is inactive", 400);
+      }
+
       const user = await User.findOne({ email: decoded.email });
 
       if (!user) {
