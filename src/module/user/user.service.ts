@@ -81,9 +81,10 @@ const updateUserStatus = async (email: string, status: "active" | "inactive") =>
   return user;
 };
 
-const getAll = async (page: number, limit: number, search: string , userData:JwtPayload) => {
+const getAll = async (page: number, limit: number, search: string , userData:JwtPayload,status: string) => {
   const users = await filterWithPagination(User, { page, limit, search, searchFields: ["name","email"] ,filters: {
-      email: { $ne: userData.email } 
+      email: { $ne: userData.email } ,
+      status
     }});
   return users;
 };

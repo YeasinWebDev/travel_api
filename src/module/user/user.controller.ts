@@ -63,9 +63,9 @@ const deleteUser = async (req: Request, res: Response, next: NextFunction) => {
 
 const getAll = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { page, limit, search } = req.query;
+    const { page, limit, search,status } = req.query;
 
-    const result = await UserService.getAll(parseInt((page as string) || "1"), parseInt((limit as string) || "5"), search as string , req.user as JwtPayload);
+    const result = await UserService.getAll(parseInt((page as string) || "1"), parseInt((limit as string) || "5"), search as string , req.user as JwtPayload, status as string);
     sendResponse(res, 200, "Users fetched successfully", result);
   } catch (error) {
     next(error);

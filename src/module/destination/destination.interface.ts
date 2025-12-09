@@ -6,6 +6,7 @@ export interface IDestination {
   location: string;
   description: string;
   image: string[];
+  imagePreviews?: string[];
   interests: string[];
   division: Types.ObjectId;
   price: number;
