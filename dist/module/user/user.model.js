@@ -31,6 +31,11 @@ const userSchema = new mongoose_1.default.Schema({
     },
     travelInterests: [String],
     location: String,
+    status: {
+        type: String,
+        enum: ["active", "inactive"],
+        default: "active"
+    }
 }, {
     timestamps: true,
     versionKey: false,

@@ -12,10 +12,19 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.DestinationController = void 0;
 const destination_service_1 = require("./destination.service");
 const sendResponse_1 = require("../../utils/sendResponse");
-const createDivision = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const createDestination = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const result = yield destination_service_1.DestinationService.createDestination(req.body);
-        (0, sendResponse_1.sendResponse)(res, 200, "Division created successfully", result);
+        (0, sendResponse_1.sendResponse)(res, 200, "Destination created successfully", result);
+    }
+    catch (error) {
+        next(error);
+    }
+});
+const imagesUploader = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const images = (req === null || req === void 0 ? void 0 : req.files).map((file) => file === null || file === void 0 ? void 0 : file.path);
+        return (0, sendResponse_1.sendResponse)(res, 200, "Images uploaded successfully", images);
     }
     catch (error) {
         next(error);
@@ -23,7 +32,7 @@ const createDivision = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
 });
 const getAllDestinations = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const result = yield destination_service_1.DestinationService.getAllDestinations(parseInt(req.query.page || "1"), parseInt(req.query.limit || "3"), req.query.destination, req.query.division, req.query.bestTimeToVisit);
+        const result = yield destination_service_1.DestinationService.getAllDestinations(parseInt(req.query.page || "1"), parseInt(req.query.limit || "3"), req.query.search, req.query.division, req.query.bestTimeToVisit);
         (0, sendResponse_1.sendResponse)(res, 200, "Division fetched successfully", result);
     }
     catch (error) {
@@ -57,4 +66,4 @@ const deleteDestination = (req, res, next) => __awaiter(void 0, void 0, void 0, 
         next(error);
     }
 });
-exports.DestinationController = { createDivision, getAllDestinations, getDestination, updateDestination, deleteDestination };
+exports.DestinationController = { createDestination, getAllDestinations, getDestination, updateDestination, deleteDestination, imagesUploader };

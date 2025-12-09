@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserService = void 0;
 const AppError_1 = __importDefault(require("../../errorHelpers/AppError"));
+const filterWithPagination_1 = require("../../utils/filterWithPagination");
 const userToken_1 = require("../../utils/userToken");
 const user_model_1 = require("./user.model");
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
@@ -35,6 +36,9 @@ const loginUser = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     if (!user) {
         throw new AppError_1.default("User does not exist", 400);
     }
+    if (user.status === "inactive") {
+        throw new AppError_1.default("User is inactive", 400);
+    }
     const isPasswordMatch = yield bcryptjs_1.default.compare(payload.password, user.password);
     if (!isPasswordMatch) {
         throw new AppError_1.default("Password does not match", 400);
@@ -47,7 +51,16 @@ const me = (email) => __awaiter(void 0, void 0, void 0, function* () {
     if (!user) {
         throw new AppError_1.default("User does not exist", 400);
     }
-    return user;
+    const res = {
+        _id: user._id,
+        email: user.email,
+        role: user.role,
+        name: user.name,
+        profileImage: user.profileImage,
+        location: user.location,
+        travelInterests: user.travelInterests,
+    };
+    return res;
 });
 const updateUser = (email, payload) => __awaiter(void 0, void 0, void 0, function* () {
     const user = yield user_model_1.User.findOneAndUpdate({ email }, payload, { new: true });
@@ -63,4 +76,18 @@ const deleteUser = (email) => __awaiter(void 0, void 0, void 0, function* () {
     }
     return user;
 });
-exports.UserService = { createUser, loginUser, me, updateUser, deleteUser };
+const updateUserStatus = (email, status) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = yield user_model_1.User.findOneAndUpdate({ email }, { status }, { new: true });
+    if (!user) {
+        throw new AppError_1.default("User does not exist", 400);
+    }
+    return user;
+});
+const getAll = (page, limit, search, userData, status) => __awaiter(void 0, void 0, void 0, function* () {
+    const users = yield (0, filterWithPagination_1.filterWithPagination)(user_model_1.User, { page, limit, search, searchFields: ["name", "email"], filters: {
+            email: { $ne: userData.email },
+            status
+        } });
+    return users;
+});
+exports.UserService = { createUser, loginUser, me, updateUser, deleteUser, getAll, updateUserStatus };

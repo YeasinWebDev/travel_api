@@ -10,5 +10,6 @@ exports.createUserSchema = zod_1.default.object({
     email: zod_1.default.string().email(),
     password: zod_1.default.string().min(6),
     travelInterests: zod_1.default.array(zod_1.default.string()).optional(),
-    location: zod_1.default.string().optional()
+    location: zod_1.default.string().optional(),
+    role: zod_1.default.string().optional(),
 });

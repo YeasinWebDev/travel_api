@@ -68,4 +68,11 @@ const getTrip = (tripId) => __awaiter(void 0, void 0, void 0, function* () {
         throw new AppError_1.default("Trip does not exist", 400);
     return trip;
 });
-exports.TripService = { createTrip, addParticipant, updateTrip, deleteTrip, getAllTrip, getTrip };
+const updateTripStatus = (tripId, status) => __awaiter(void 0, void 0, void 0, function* () {
+    const isExists = trip_model_1.Trip.findById(tripId);
+    if (!isExists)
+        throw new AppError_1.default("Trip does not exist", 400);
+    const trip = trip_model_1.Trip.findByIdAndUpdate(tripId, { status }, { new: true });
+    return trip;
+});
+exports.TripService = { createTrip, addParticipant, updateTrip, deleteTrip, getAllTrip, getTrip, updateTripStatus };

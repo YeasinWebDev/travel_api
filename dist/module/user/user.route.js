@@ -8,6 +8,7 @@ const user_interface_1 = require("./user.interface");
 const user_validation_1 = require("./user.validation");
 const fileUploder_1 = require("../../helpers/fileUploder");
 exports.userRouter = (0, express_1.Router)();
+exports.userRouter.get("/", (0, checkAuth_1.checkAuth)(user_interface_1.IUserRole.ADMIN), user_controller_1.UserController.getAll);
 exports.userRouter.get("/me", (0, checkAuth_1.checkAuth)(user_interface_1.IUserRole.ADMIN, user_interface_1.IUserRole.USER), user_controller_1.UserController.me);
 // userRouter.get("/:email", UserController.me);
 exports.userRouter.post("/create", fileUploder_1.malterUpload.single("image"), (req, res, next) => {
@@ -15,5 +16,6 @@ exports.userRouter.post("/create", fileUploder_1.malterUpload.single("image"), (
     return user_controller_1.UserController.createUser(req, res, next);
 });
 exports.userRouter.post("/login", user_controller_1.UserController.loginUser);
-exports.userRouter.patch("/:email", user_controller_1.UserController.updateUser);
+exports.userRouter.patch("/status/:email", (0, checkAuth_1.checkAuth)(user_interface_1.IUserRole.ADMIN), user_controller_1.UserController.updateUserStatus);
+exports.userRouter.patch("/:email", (0, checkAuth_1.checkAuth)(user_interface_1.IUserRole.ADMIN, user_interface_1.IUserRole.USER), user_controller_1.UserController.updateUser);
 exports.userRouter.delete("/:email", (0, checkAuth_1.checkAuth)(user_interface_1.IUserRole.ADMIN), user_controller_1.UserController.deleteUser);

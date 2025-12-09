@@ -80,64 +80,85 @@ const createPayment = (payload, user) => __awaiter(void 0, void 0, void 0, funct
 });
 const checkWebHook = (event) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b, _c, _d;
-    if (event.type === "checkout.session.completed") {
-        const session = event.data.object;
-        const paymentId = (_a = session.metadata) === null || _a === void 0 ? void 0 : _a.paymentId;
-        const tripId = (_b = session.metadata) === null || _b === void 0 ? void 0 : _b.tripId;
-        const userId = (_c = session.metadata) === null || _c === void 0 ? void 0 : _c.userId;
-        const startSession = yield mongoose_1.default.startSession();
-        startSession.startTransaction();
-        const res = yield payment_model_1.Payment.findById(paymentId).session(startSession);
-        if (!res)
+    if (event.type !== "checkout.session.completed")
+        return false;
+    const session = event.data.object;
+    const paymentId = (_a = session.metadata) === null || _a === void 0 ? void 0 : _a.paymentId;
+    const tripId = (_b = session.metadata) === null || _b === void 0 ? void 0 : _b.tripId;
+    const userId = (_c = session.metadata) === null || _c === void 0 ? void 0 : _c.userId;
+    const mongoSession = yield mongoose_1.default.startSession();
+    mongoSession.startTransaction();
+    let booking;
+    let trip;
+    let payment;
+    try {
+        // PHASE 1 — DATABASE ONLY (fast)
+        payment = yield payment_model_1.Payment.findById(paymentId).session(mongoSession);
+        if (!payment)
             throw new AppError_1.default("Payment does not exist", 400);
-        res.status = booking_interface_1.IPaymentStatus.SUCCESS;
-        res.paymentGatewayData = session.payment_intent;
-        yield res.save({ session: startSession });
-        const booking = yield booking_model_1.Booking.findById(res.booking).populate("user").session(startSession);
+        payment.status = booking_interface_1.IPaymentStatus.SUCCESS;
+        payment.paymentGatewayData = session.payment_intent;
+        yield payment.save({ session: mongoSession });
+        booking = yield booking_model_1.Booking.findById(payment.booking)
+            .populate("user")
+            .session(mongoSession);
         if (!booking)
             throw new AppError_1.default("Booking does not exist", 400);
         booking.paymentStatus = booking_interface_1.IPaymentStatus.SUCCESS;
-        yield booking.save({ session: startSession });
-        const trip = yield trip_model_1.Trip.findById(tripId).session(startSession);
+        yield booking.save({ session: mongoSession });
+        trip = yield trip_model_1.Trip.findById(tripId).session(mongoSession);
         if (!trip)
             throw new AppError_1.default("Trip does not exist", 400);
         const participant = {
             user: new mongoose_1.default.Types.ObjectId(userId),
-            paymentId: paymentId,
-            numberOfGuests: res.totalPeople,
+            paymentId,
+            numberOfGuests: payment.totalPeople,
             joinedAt: new Date(),
         };
-        trip.participants = [...((_d = trip === null || trip === void 0 ? void 0 : trip.participants) !== null && _d !== void 0 ? _d : []), participant];
-        yield trip.save({ session: startSession });
-        const invoiceData = {
-            bookingId: booking._id.toString(),
-            bookingDate: booking.createdAt,
-            userName: booking.user.name,
-            tourTitle: trip.title,
-            guestCount: res.totalPeople,
-            totalAmount: res.amount,
-        };
-        const pdfBuffer = yield (0, invoice_1.generatePdf)(invoiceData);
-        const cloudinaryResult = yield (0, cloudinary_config_1.uploadBufferToCloudinary)(pdfBuffer, "invoice");
-        yield payment_model_1.Payment.findByIdAndUpdate(res === null || res === void 0 ? void 0 : res._id, { invoiceUrl: cloudinaryResult === null || cloudinaryResult === void 0 ? void 0 : cloudinaryResult.secure_url }, { runValidators: true, session: startSession });
-        yield (0, sendEmail_1.sendEmail)({
-            to: (booking === null || booking === void 0 ? void 0 : booking.user).email,
-            subject: "Your Booking Invoice",
-            templateName: "invoice",
-            templateData: invoiceData,
-            attachments: [
-                {
-                    filename: "invoice.pdf",
-                    content: pdfBuffer,
-                    contentType: "application/pdf",
-                },
-            ],
-        });
-        yield startSession.commitTransaction();
-        yield startSession.endSession();
-        return true;
+        trip.participants = [...((_d = trip.participants) !== null && _d !== void 0 ? _d : []), participant];
+        yield trip.save({ session: mongoSession });
+        // Commit only database operations
+        yield mongoSession.commitTransaction();
     }
-    return false;
+    catch (err) {
+        yield mongoSession.abortTransaction();
+        throw err;
+    }
+    finally {
+        mongoSession.endSession();
+    }
+    // PHASE 2 — OUTSIDE TRANSACTION (no conflicts)
+    const invoiceData = {
+        bookingId: booking._id.toString(),
+        bookingDate: booking.createdAt,
+        userName: booking.user.name,
+        tourTitle: trip.title,
+        guestCount: payment.totalPeople,
+        totalAmount: payment.amount,
+    };
+    // Generate PDF
+    const pdfBuffer = yield (0, invoice_1.generatePdf)(invoiceData);
+    // Upload to Cloudinary
+    const cloudinaryResult = yield (0, cloudinary_config_1.uploadBufferToCloudinary)(pdfBuffer, "invoice");
+    // Save invoice URL (simple atomic update)
+    yield payment_model_1.Payment.findByIdAndUpdate(paymentId, {
+        invoiceUrl: cloudinaryResult.secure_url,
+    });
+    // Send email
+    yield (0, sendEmail_1.sendEmail)({
+        to: booking.user.email,
+        subject: "Your Booking Invoice",
+        templateName: "invoice",
+        templateData: invoiceData,
+        attachments: [
+            {
+                filename: "invoice.pdf",
+                content: pdfBuffer,
+                contentType: "application/pdf",
+            },
+        ],
+    });
+    return true;
 });
 const getPaymentById = (paymentId) => __awaiter(void 0, void 0, void 0, function* () {
     const payment = yield payment_model_1.Payment.findById(paymentId).populate("booking");

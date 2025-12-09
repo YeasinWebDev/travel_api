@@ -29,6 +29,9 @@ const checkAuth = (...authRoles) => (req, res, next) => __awaiter(void 0, void 0
         if (!isUserExist) {
             throw new AppError_1.default("User does not exist", 400);
         }
+        if (isUserExist.status === "inactive") {
+            throw new AppError_1.default("User is inactive", 400);
+        }
         const user = yield user_model_1.User.findOne({ email: decoded.email });
         if (!user) {
             throw new AppError_1.default(`${decoded.email} does not exist`, 400);

@@ -31,7 +31,7 @@ const generatePdf = (invoiceData) => __awaiter(void 0, void 0, void 0, function*
             doc
                 .fontSize(26)
                 .fillColor("#333333")
-                .text("Dream Tours Ltd.", { align: "center", underline: true });
+                .text("Way fare Ltd.", { align: "center", underline: true });
             doc.moveDown(1);
             doc
                 .fontSize(20)

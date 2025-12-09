@@ -69,4 +69,13 @@ const getTrip = (req, res, next) => __awaiter(void 0, void 0, void 0, function* 
         next(error);
     }
 });
-exports.TripController = { createTrip, addParticipant, updateTrip, deleteTrip, getAllTrip, getTrip };
+const updateTripStatus = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const result = yield trip_service_1.TripService.updateTripStatus(req.params.id, req.body.status);
+        (0, sendResponse_1.sendResponse)(res, 200, "Trip status updated successfully", result);
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.TripController = { createTrip, addParticipant, updateTrip, deleteTrip, getAllTrip, getTrip, updateTripStatus };

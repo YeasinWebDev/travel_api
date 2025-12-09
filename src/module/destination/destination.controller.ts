@@ -13,7 +13,7 @@ const createDestination = async(req: Request, res: Response, next: NextFunction)
 
 const imagesUploader = async(req: Request, res: Response, next: NextFunction) => {
   try {
-      const images = (req?.files as any).map(file => file?.path as string);
+      const images = (req?.files as any).map((file: any) => file?.path as string);
       return sendResponse(res, 200, "Images uploaded successfully", images);
   } catch (error) {
       next(error)

@@ -14,5 +14,6 @@ exports.tripRouter.post("/create", fileUploder_1.malterUpload.single("image"), (
     req.body = JSON.parse(req.body.data);
     return trip_controller_1.TripController.createTrip(req, res, next);
 });
+exports.tripRouter.patch("/status/:id", (0, checkAuth_1.checkAuth)(user_interface_1.IUserRole.ADMIN, user_interface_1.IUserRole.USER), trip_controller_1.TripController.updateTripStatus);
 exports.tripRouter.patch("/:id", (0, checkAuth_1.checkAuth)(user_interface_1.IUserRole.ADMIN, user_interface_1.IUserRole.USER), trip_controller_1.TripController.updateTrip);
 exports.tripRouter.delete("/:id", (0, checkAuth_1.checkAuth)(user_interface_1.IUserRole.ADMIN, user_interface_1.IUserRole.USER), trip_controller_1.TripController.deleteTrip);

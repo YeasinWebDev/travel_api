@@ -69,4 +69,25 @@ const deleteUser = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
         next(error);
     }
 });
-exports.UserController = { createUser, loginUser, me, updateUser, deleteUser };
+const getAll = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { page, limit, search, status } = req.query;
+        const result = yield user_service_1.UserService.getAll(parseInt(page || "1"), parseInt(limit || "5"), search, req.user, status);
+        (0, sendResponse_1.sendResponse)(res, 200, "Users fetched successfully", result);
+    }
+    catch (error) {
+        next(error);
+    }
+});
+const updateUserStatus = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { status } = req.body;
+        const { email } = req.params;
+        const result = yield user_service_1.UserService.updateUserStatus(email, status);
+        (0, sendResponse_1.sendResponse)(res, 200, "User status updated successfully", result);
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.UserController = { createUser, loginUser, me, updateUser, deleteUser, getAll, updateUserStatus };

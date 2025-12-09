@@ -14,7 +14,10 @@ userRouter.post("/create", malterUpload.single("image"), (req:Request, res:Respo
   req.body = createUserSchema.parse(JSON.parse(req.body.data));
   return UserController.createUser(req, res, next);
 });
+
 userRouter.post("/login", UserController.loginUser);
 userRouter.patch("/status/:email", checkAuth(IUserRole.ADMIN), UserController.updateUserStatus);
+
 userRouter.patch("/:email",checkAuth(IUserRole.ADMIN,IUserRole.USER), UserController.updateUser);
+
 userRouter.delete("/:email", checkAuth(IUserRole.ADMIN), UserController.deleteUser);
