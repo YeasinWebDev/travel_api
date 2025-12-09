@@ -68,4 +68,11 @@ const getTrip = async (tripId: string) => {
   return trip;
 };
 
-export const TripService = { createTrip, addParticipant, updateTrip, deleteTrip, getAllTrip, getTrip };
+const updateTripStatus = async (tripId: string, status: string) => {
+  const isExists = Trip.findById(tripId);
+  if (!isExists) throw new AppError("Trip does not exist", 400);
+  const trip = Trip.findByIdAndUpdate(tripId, { status }, { new: true });
+  return trip;
+};
+
+export const TripService = { createTrip, addParticipant, updateTrip, deleteTrip, getAllTrip, getTrip,updateTripStatus };

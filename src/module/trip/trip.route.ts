@@ -14,6 +14,7 @@ tripRouter.post("/create", malterUpload.single("image"), checkAuth(IUserRole.ADM
   req.body = JSON.parse(req.body.data)
   return TripController.createTrip(req, res, next);
 });
+tripRouter.patch("/status/:id", checkAuth(IUserRole.ADMIN, IUserRole.USER), TripController.updateTripStatus);
 
 tripRouter.patch("/:id", checkAuth(IUserRole.ADMIN, IUserRole.USER), TripController.updateTrip);
 tripRouter.delete("/:id", checkAuth(IUserRole.ADMIN, IUserRole.USER), TripController.deleteTrip);

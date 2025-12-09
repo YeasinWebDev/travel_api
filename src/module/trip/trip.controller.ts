@@ -58,4 +58,13 @@ const getTrip = async(req: Request, res: Response, next: NextFunction) => {
   }
 }
 
-export const TripController = { createTrip, addParticipant, updateTrip, deleteTrip , getAllTrip, getTrip };
+const updateTripStatus = async(req: Request, res: Response, next: NextFunction) => {
+  try {
+    const result =await TripService.updateTripStatus(req.params.id, req.body.status);
+    sendResponse(res, 200, "Trip status updated successfully", result);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export const TripController = { createTrip, addParticipant, updateTrip, deleteTrip , getAllTrip, getTrip,updateTripStatus };
