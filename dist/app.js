@@ -16,6 +16,7 @@ const payment_route_1 = require("./module/payment/payment.route");
 const payment_controller_1 = require("./module/payment/payment.controller");
 const booking_route_1 = require("./module/booking/booking.route");
 const review_route_1 = require("./module/review/review.route");
+const stats_route_1 = require("./module/stats/stats.route");
 const app = (0, express_1.default)();
 app.post("/api/v1/webhook", express_1.default.raw({ type: "application/json" }), payment_controller_1.PaymentController.checkWebHook);
 app.use((0, cors_1.default)({
@@ -37,6 +38,7 @@ app.use("/api/v1/trip", trip_route_1.tripRouter);
 app.use("/api/v1/payment", payment_route_1.paymentRouter);
 app.use("/api/v1/booking", booking_route_1.bookingRoute);
 app.use("/api/v1/review", review_route_1.reviewRouter);
+app.use("/api/v1/stats", stats_route_1.statsRouter);
 // global error handlers
 app.use(globalErrorHandler_1.globalErrorHandler);
 app.use(notFound_1.notFound);
