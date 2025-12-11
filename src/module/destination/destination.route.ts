@@ -9,7 +9,7 @@ export const destinationRoute = Router();
 destinationRoute.get("/", DestinationController.getAllDestinations);
 destinationRoute.get("/:id", DestinationController.getDestination); 
 
-destinationRoute.post('/imageUpload',malterUpload.array("images"), checkAuth(IUserRole.ADMIN), (req:Request, res:Response, next:NextFunction) => {
+destinationRoute.post('/imageUpload',malterUpload.array("images"), checkAuth(IUserRole.ADMIN,IUserRole.USER), (req:Request, res:Response, next:NextFunction) => {
   return DestinationController.imagesUploader(req, res, next);
 })
 

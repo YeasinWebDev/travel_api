@@ -3,14 +3,16 @@ import { IPrecipitants, ITrip } from "./trip.interface";
 import { Trip } from "./trip.model";
 import { filterWithPagination } from "../../utils/filterWithPagination";
 import { JwtPayload } from "jsonwebtoken";
+import { Destination } from "../destination/destination.model";
 
 const createTrip = async (user: JwtPayload, payload: Partial<ITrip>, image: string) => {
   const { startDate, endDate } = payload;
 
   const isTripExists = await Trip.findOne({ creator: user.userId, startDate, endDate });
   if (isTripExists) throw new AppError("Trip already exist in that date", 400);
+  console.log(payload)
 
-  const isDestinationExists = await Trip.findOne({ destination: payload.destination });
+  const isDestinationExists = await Destination.findById(payload.destination);
 
   if (!isDestinationExists) throw new AppError("Destination does not exist", 400);
 
@@ -75,4 +77,16 @@ const updateTripStatus = async (tripId: string, status: string) => {
   return trip;
 };
 
-export const TripService = { createTrip, addParticipant, updateTrip, deleteTrip, getAllTrip, getTrip,updateTripStatus };
+const getMyTrips = async (user: JwtPayload, page: number, limit: number, search: string, startDate: string = "", endDate: string = "") => {
+  const trips = await filterWithPagination(Trip, {
+    page,
+    limit,
+    search,
+    searchFields: ["title"],
+    populate: ["creator", "destination"],
+    filters: { creator: user.userId, startDate, endDate },
+  });
+  return trips;
+};
+
+export const TripService = { createTrip, addParticipant, updateTrip, deleteTrip, getAllTrip, getTrip, updateTripStatus ,getMyTrips};

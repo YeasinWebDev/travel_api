@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { DestinationService } from "./destination.service";
 import { sendResponse } from "../../utils/sendResponse";
+import AppError from "../../errorHelpers/AppError";
 
 const createDestination = async(req: Request, res: Response, next: NextFunction) => {
   try {
@@ -13,7 +14,13 @@ const createDestination = async(req: Request, res: Response, next: NextFunction)
 
 const imagesUploader = async(req: Request, res: Response, next: NextFunction) => {
   try {
+
+    if(!req?.files?.length) {
+      throw new AppError("Image upload fail try again", 400)
+    }
+
       const images = (req?.files as any).map((file: any) => file?.path as string);
+      
       return sendResponse(res, 200, "Images uploaded successfully", images);
   } catch (error) {
       next(error)

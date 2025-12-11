@@ -7,6 +7,7 @@ import { malterUpload } from "../../helpers/fileUploder";
 export const tripRouter = Router();
 
 tripRouter.get("/", TripController.getAllTrip);
+tripRouter.get("/my-trips", checkAuth(IUserRole.ADMIN, IUserRole.USER), TripController.getMyTrips);
 tripRouter.get("/:id", TripController.getTrip);
 tripRouter.post("/add-participant/:id", checkAuth(IUserRole.ADMIN, IUserRole.USER), TripController.addParticipant);
 
