@@ -20,7 +20,7 @@ const stats_route_1 = require("./module/stats/stats.route");
 const app = (0, express_1.default)();
 app.post("/api/v1/webhook", express_1.default.raw({ type: "application/json" }), payment_controller_1.PaymentController.checkWebHook);
 app.use((0, cors_1.default)({
-    origin: "http://localhost:3000",
+    origin: ["http://localhost:3000", "https://travel-next-blush.vercel.app"],
     credentials: true,
 }));
 app.set("trust proxy", true);

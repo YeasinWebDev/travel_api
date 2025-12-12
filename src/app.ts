@@ -20,7 +20,7 @@ app.post("/api/v1/webhook", express.raw({ type: "application/json" }), PaymentCo
 
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: ["http://localhost:3000" ,"https://travel-next-blush.vercel.app"],
     credentials: true,
   })
 );
