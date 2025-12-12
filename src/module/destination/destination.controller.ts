@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { DestinationService } from "./destination.service";
 import { sendResponse } from "../../utils/sendResponse";
-import AppError from "../../errorHelpers/AppError";
 import { uploadBufferToCloudinary } from "../../config/cloudinary.config";
 import fs from "fs";
 
@@ -48,7 +47,7 @@ const getAllDestinations = async (req: Request, res: Response, next: NextFunctio
       req.query.division as string,
       req.query.bestTimeToVisit as string
     );
-    sendResponse(res, 200, "Division fetched successfully", result);
+    sendResponse(res, 200, "Destination fetched successfully", result);
   } catch (error) {
     next(error);
   }
