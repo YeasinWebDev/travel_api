@@ -21,4 +21,13 @@ const allStats = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
         next(error);
     }
 });
-exports.StatsController = { allStats };
+const allStatsForUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const getAllStats = yield stats_service_1.StatsService.allStatsForUser(req.user);
+        (0, sendResponse_1.sendResponse)(res, 200, "Stats fetched successfully", getAllStats);
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.StatsController = { allStats, allStatsForUser };

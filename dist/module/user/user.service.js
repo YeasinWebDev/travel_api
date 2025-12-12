@@ -18,6 +18,7 @@ const filterWithPagination_1 = require("../../utils/filterWithPagination");
 const userToken_1 = require("../../utils/userToken");
 const user_model_1 = require("./user.model");
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
+const booking_model_1 = require("../booking/booking.model");
 const createUser = (payload, profileImage) => __awaiter(void 0, void 0, void 0, function* () {
     const isExist = yield user_model_1.User.findOne({ email: payload.email });
     if (isExist) {
@@ -84,10 +85,25 @@ const updateUserStatus = (email, status) => __awaiter(void 0, void 0, void 0, fu
     return user;
 });
 const getAll = (page, limit, search, userData, status) => __awaiter(void 0, void 0, void 0, function* () {
-    const users = yield (0, filterWithPagination_1.filterWithPagination)(user_model_1.User, { page, limit, search, searchFields: ["name", "email"], filters: {
+    const users = yield (0, filterWithPagination_1.filterWithPagination)(user_model_1.User, {
+        page,
+        limit,
+        search,
+        searchFields: ["name", "email"],
+        filters: {
             email: { $ne: userData.email },
-            status
-        } });
+            status,
+        },
+    });
     return users;
 });
-exports.UserService = { createUser, loginUser, me, updateUser, deleteUser, getAll, updateUserStatus };
+const getMyBooking = (email, page, limit, status) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = yield user_model_1.User.findOne({ email });
+    if (!user) {
+        throw new AppError_1.default("User does not exist", 400);
+    }
+    // const myBooking = Booking.find({ user: user._id });
+    const myBooking = yield (0, filterWithPagination_1.filterWithPagination)(booking_model_1.Booking, { page, limit, filters: { user: user._id, paymentStatus: status }, populate: ["user", "trip"] });
+    return myBooking;
+});
+exports.UserService = { createUser, loginUser, me, updateUser, deleteUser, getAll, updateUserStatus, getMyBooking };

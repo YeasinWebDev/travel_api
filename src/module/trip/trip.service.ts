@@ -10,7 +10,7 @@ const createTrip = async (user: JwtPayload, payload: Partial<ITrip>, image: stri
 
   const isTripExists = await Trip.findOne({ creator: user.userId, startDate, endDate });
   if (isTripExists) throw new AppError("Trip already exist in that date", 400);
-  console.log(payload)
+  
 
   const isDestinationExists = await Destination.findById(payload.destination);
 

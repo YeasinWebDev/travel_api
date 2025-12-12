@@ -10,8 +10,8 @@ const fileUploder_1 = require("../../helpers/fileUploder");
 exports.userRouter = (0, express_1.Router)();
 exports.userRouter.get("/", (0, checkAuth_1.checkAuth)(user_interface_1.IUserRole.ADMIN), user_controller_1.UserController.getAll);
 exports.userRouter.get("/me", (0, checkAuth_1.checkAuth)(user_interface_1.IUserRole.ADMIN, user_interface_1.IUserRole.USER), user_controller_1.UserController.me);
-// userRouter.get("/:email", UserController.me);
-exports.userRouter.post("/create", fileUploder_1.malterUpload.single("image"), (req, res, next) => {
+exports.userRouter.get("/my-bookings", (0, checkAuth_1.checkAuth)(user_interface_1.IUserRole.ADMIN, user_interface_1.IUserRole.USER), user_controller_1.UserController.getMyBooking);
+exports.userRouter.post("/create", fileUploder_1.malterUpload.single("file"), (req, res, next) => {
     req.body = user_validation_1.createUserSchema.parse(JSON.parse(req.body.data));
     return user_controller_1.UserController.createUser(req, res, next);
 });

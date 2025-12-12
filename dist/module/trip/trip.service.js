@@ -16,12 +16,13 @@ exports.TripService = void 0;
 const AppError_1 = __importDefault(require("../../errorHelpers/AppError"));
 const trip_model_1 = require("./trip.model");
 const filterWithPagination_1 = require("../../utils/filterWithPagination");
+const destination_model_1 = require("../destination/destination.model");
 const createTrip = (user, payload, image) => __awaiter(void 0, void 0, void 0, function* () {
     const { startDate, endDate } = payload;
     const isTripExists = yield trip_model_1.Trip.findOne({ creator: user.userId, startDate, endDate });
     if (isTripExists)
         throw new AppError_1.default("Trip already exist in that date", 400);
-    const isDestinationExists = yield trip_model_1.Trip.findOne({ destination: payload.destination });
+    const isDestinationExists = yield destination_model_1.Destination.findById(payload.destination);
     if (!isDestinationExists)
         throw new AppError_1.default("Destination does not exist", 400);
     const dataPayload = Object.assign(Object.assign({}, payload), { creator: user.userId, image });
@@ -75,4 +76,15 @@ const updateTripStatus = (tripId, status) => __awaiter(void 0, void 0, void 0, f
     const trip = trip_model_1.Trip.findByIdAndUpdate(tripId, { status }, { new: true });
     return trip;
 });
-exports.TripService = { createTrip, addParticipant, updateTrip, deleteTrip, getAllTrip, getTrip, updateTripStatus };
+const getMyTrips = (user_1, page_2, limit_2, search_2, ...args_2) => __awaiter(void 0, [user_1, page_2, limit_2, search_2, ...args_2], void 0, function* (user, page, limit, search, startDate = "", endDate = "") {
+    const trips = yield (0, filterWithPagination_1.filterWithPagination)(trip_model_1.Trip, {
+        page,
+        limit,
+        search,
+        searchFields: ["title"],
+        populate: ["creator", "destination"],
+        filters: { creator: user.userId, startDate, endDate },
+    });
+    return trips;
+});
+exports.TripService = { createTrip, addParticipant, updateTrip, deleteTrip, getAllTrip, getTrip, updateTripStatus, getMyTrips };

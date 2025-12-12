@@ -42,18 +42,8 @@ const updateDestination = (id, payload) => __awaiter(void 0, void 0, void 0, fun
     const existing = yield destination_model_1.Destination.findById(id);
     if (!existing)
         throw new AppError_1.default("Destination does not exist", 400);
-    // New images coming from payload
-    const newImages = payload.image || [];
-    // Existing images from DB
-    const oldImages = existing.image || [];
-    // Identify which images were removed by user
-    const removedImages = oldImages.filter(img => !newImages.includes(img));
-    // Delete removed images from Cloudinary
-    if (removedImages.length > 0) {
-        yield (0, fileUploder_1.deleteMultipleCloudinaryImages)(removedImages);
-    }
-    // Final images list (user keeps some + adds new)
-    const finalImages = newImages;
+    yield (0, fileUploder_1.deleteMultipleCloudinaryImages)(existing.image || []);
+    const finalImages = payload.image || [];
     const updatePayload = Object.assign(Object.assign({}, payload), { image: finalImages });
     const updated = yield destination_model_1.Destination.findByIdAndUpdate(id, updatePayload, { new: true });
     return updated;

@@ -9,8 +9,9 @@ export const userRouter = Router();
 
 userRouter.get("/", checkAuth(IUserRole.ADMIN), UserController.getAll);
 userRouter.get("/me", checkAuth(IUserRole.ADMIN, IUserRole.USER), UserController.me);
-// userRouter.get("/:email", UserController.me);
-userRouter.post("/create", malterUpload.single("image"), (req:Request, res:Response, next:NextFunction) => {
+userRouter.get("/my-bookings", checkAuth(IUserRole.ADMIN, IUserRole.USER), UserController.getMyBooking);
+
+userRouter.post("/create", malterUpload.single("file"), (req:Request, res:Response, next:NextFunction) => {
   req.body = createUserSchema.parse(JSON.parse(req.body.data));
   return UserController.createUser(req, res, next);
 });

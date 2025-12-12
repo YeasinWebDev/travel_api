@@ -7,3 +7,4 @@ const checkAuth_1 = require("../../middlewares/checkAuth");
 const user_interface_1 = require("../user/user.interface");
 exports.statsRouter = (0, express_1.Router)();
 exports.statsRouter.get("/", (0, checkAuth_1.checkAuth)(user_interface_1.IUserRole.ADMIN), stats_controller_1.StatsController.allStats);
+exports.statsRouter.get("/user", (0, checkAuth_1.checkAuth)(user_interface_1.IUserRole.ADMIN, user_interface_1.IUserRole.USER), stats_controller_1.StatsController.allStatsForUser);

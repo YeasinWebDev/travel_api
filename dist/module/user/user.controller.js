@@ -90,4 +90,14 @@ const updateUserStatus = (req, res, next) => __awaiter(void 0, void 0, void 0, f
         next(error);
     }
 });
-exports.UserController = { createUser, loginUser, me, updateUser, deleteUser, getAll, updateUserStatus };
+const getMyBooking = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const { page, limit, status } = req.query;
+    try {
+        const result = yield user_service_1.UserService.getMyBooking(req.user.email, parseInt(page || "1"), parseInt(limit || "5"), status);
+        (0, sendResponse_1.sendResponse)(res, 200, "User Booking fetched successfully", result);
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.UserController = { createUser, loginUser, me, updateUser, deleteUser, getAll, updateUserStatus, getMyBooking };

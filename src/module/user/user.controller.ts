@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { UserService } from "./user.service";
 import { sendResponse } from "../../utils/sendResponse";
 import { JwtPayload } from "jsonwebtoken";
+import { IPaymentStatus } from "../booking/booking.interface";
 
 const createUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -83,4 +84,14 @@ const updateUserStatus = async (req: Request, res: Response, next: NextFunction)
   }
 };
 
-export const UserController = { createUser, loginUser, me, updateUser, deleteUser  , getAll,updateUserStatus };
+const getMyBooking = async (req: Request, res: Response, next: NextFunction) => {
+  const { page, limit, status } = req.query;
+  try {
+    const result = await UserService.getMyBooking(req.user.email as string , parseInt((page as string) || "1"), parseInt((limit as string) || "5"), status as IPaymentStatus);
+    sendResponse(res, 200, "User Booking fetched successfully", result);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export const UserController = { createUser, loginUser, me, updateUser, deleteUser  , getAll,updateUserStatus , getMyBooking};

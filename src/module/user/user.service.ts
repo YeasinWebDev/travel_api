@@ -5,6 +5,8 @@ import { createToken } from "../../utils/userToken";
 import { IUser } from "./user.interface";
 import { User } from "./user.model";
 import bcrypt from "bcryptjs";
+import { Booking } from "../booking/booking.model";
+import { IPaymentStatus } from "../booking/booking.interface";
 
 const createUser = async (payload: Partial<IUser>, profileImage?: string) => {
   const isExist = await User.findOne({ email: payload.email });
@@ -81,12 +83,31 @@ const updateUserStatus = async (email: string, status: "active" | "inactive") =>
   return user;
 };
 
-const getAll = async (page: number, limit: number, search: string , userData:JwtPayload,status: string) => {
-  const users = await filterWithPagination(User, { page, limit, search, searchFields: ["name","email"] ,filters: {
-      email: { $ne: userData.email } ,
-      status
-    }});
+const getAll = async (page: number, limit: number, search: string, userData: JwtPayload, status: string) => {
+  const users = await filterWithPagination(User, {
+    page,
+    limit,
+    search,
+    searchFields: ["name", "email"],
+    filters: {
+      email: { $ne: userData.email },
+      status,
+    },
+  });
   return users;
 };
 
-export const UserService = { createUser, loginUser, me, updateUser, deleteUser , getAll,updateUserStatus };
+const getMyBooking = async (email: string, page: number, limit: number, status: IPaymentStatus) => {
+  const user = await User.findOne({ email });
+  
+  if (!user) {
+    throw new AppError("User does not exist", 400);
+  }
+  // const myBooking = Booking.find({ user: user._id });
+
+  const myBooking = await filterWithPagination(Booking, { page, limit, filters: { user: user._id, paymentStatus: status }, populate: ["user", "trip"] });
+
+  return myBooking;
+};
+
+export const UserService = { createUser, loginUser, me, updateUser, deleteUser, getAll, updateUserStatus, getMyBooking };

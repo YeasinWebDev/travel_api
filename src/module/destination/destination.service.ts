@@ -31,22 +31,9 @@ export const updateDestination = async (id: string, payload: Partial<IDestinatio
   const existing = await Destination.findById(id);
   if (!existing) throw new AppError("Destination does not exist", 400);
 
-  // New images coming from payload
-  const newImages = payload.image || [];
+  await deleteMultipleCloudinaryImages(existing.image || []);
 
-  // Existing images from DB
-  const oldImages = existing.image || [];
-
-  // Identify which images were removed by user
-  const removedImages = oldImages.filter(img => !newImages.includes(img));
-
-  // Delete removed images from Cloudinary
-  if (removedImages.length > 0) {
-    await deleteMultipleCloudinaryImages(removedImages);
-  }
-
-  // Final images list (user keeps some + adds new)
-  const finalImages = newImages;
+  const finalImages = payload.image || [];
 
   const updatePayload = {
     ...payload,
