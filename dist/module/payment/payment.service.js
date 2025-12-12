@@ -55,7 +55,7 @@ const createPayment = (payload, user) => __awaiter(void 0, void 0, void 0, funct
                             name: `Payment for trip ${trip.title}`,
                             description: `Payment for trip for ${payload.totalPeople} people`,
                         },
-                        unit_amount: payment.amount * 100,
+                        unit_amount: (payment.amount * payload.totalPeople) * 100,
                     },
                     quantity: 1,
                 },
