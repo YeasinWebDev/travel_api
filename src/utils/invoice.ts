@@ -63,7 +63,7 @@ export const generatePdf = async (invoiceData: Invoice): Promise<Buffer> => {
         .fillColor("#000000")
         .text(`Tour Package: `, { continued: true }).font("Helvetica-Bold").text(invoiceData.tourTitle)
         .font("Helvetica").text(`Number of Guests: `, { continued: true }).font("Helvetica-Bold").text(invoiceData.guestCount.toString())
-        .font("Helvetica").text(`Total Amount: `, { continued: true }).font("Helvetica-Bold").text(`$${invoiceData.totalAmount.toFixed(2)}`);
+        .font("Helvetica").text(`Total Amount: `, { continued: true }).font("Helvetica-Bold").text(`${invoiceData.totalAmount.toFixed(2)} bdt`);
 
       doc.moveDown(1);
       drawLine();
