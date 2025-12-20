@@ -7,20 +7,11 @@ interface QueryOptions {
   populate?: string[];
   searchFields?: string[];
   filters?: Record<string, any>;
+  sort?: Record<string, 1 | -1>;
 }
 
-export const filterWithPagination = async <T>(
-  model: Model<T>,
-  options: QueryOptions
-) => {
-  const {
-    page = 1,
-    limit = 10,
-    search,
-    searchFields = [],
-    filters = {},
-    populate = [],
-  } = options;
+export const filterWithPagination = async <T>(model: Model<T>, options: QueryOptions) => {
+  const { page = 1, limit = 10, search, searchFields = [], filters = {}, populate = [], sort = { createdAt: -1 } } = options;
 
   // ---- Build Query ----
   const query: any = {};
@@ -41,10 +32,7 @@ export const filterWithPagination = async <T>(
   const skip = (page - 1) * limit;
 
   // ---- Execute Query ----
-  const [data, total] = await Promise.all([
-    model.find(query).skip(skip).limit(limit).populate(populate),
-    model.countDocuments(query),
-  ]);
+  const [data, total] = await Promise.all([model.find(query).sort(sort).skip(skip).limit(limit).populate(populate), model.countDocuments(query)]);
 
   return {
     meta: {
