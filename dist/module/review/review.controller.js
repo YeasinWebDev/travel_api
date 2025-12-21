@@ -14,7 +14,7 @@ const sendResponse_1 = require("../../utils/sendResponse");
 const review_service_1 = require("./review.service");
 const createReview = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const result = yield review_service_1.ReviewService.createReview(req.body);
+        const result = yield review_service_1.ReviewService.createReview(req.body, req.user);
         (0, sendResponse_1.sendResponse)(res, 200, "Review created successfully", result);
     }
     catch (error) {
@@ -32,7 +32,22 @@ const getReview = (req, res, next) => __awaiter(void 0, void 0, void 0, function
 });
 const getAllReviews = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const result = yield review_service_1.ReviewService.getAllReviews(parseInt(req.params.page), parseInt(req.params.limit), req.params.destinationId);
+        const page = Number(req.query.page) || 1;
+        const limit = Number(req.query.limit) || 10;
+        const destinationId = req.query.destinationId;
+        const result = yield review_service_1.ReviewService.getAllReviews(page, limit, destinationId);
+        (0, sendResponse_1.sendResponse)(res, 200, "Reviews fetched successfully", result);
+    }
+    catch (error) {
+        next(error);
+    }
+});
+const getMyReviews = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 5;
+    const destinationId = req.query.destinationId || "";
+    try {
+        const result = yield review_service_1.ReviewService.getMyReviews(req.user.userId, page, limit, destinationId);
         (0, sendResponse_1.sendResponse)(res, 200, "Reviews fetched successfully", result);
     }
     catch (error) {
@@ -57,4 +72,4 @@ const updateReview = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
         next(error);
     }
 });
-exports.ReviewController = { createReview, getReview, getAllReviews, deleteReview, updateReview };
+exports.ReviewController = { createReview, getReview, getAllReviews, deleteReview, updateReview, getMyReviews };

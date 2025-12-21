@@ -11,7 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.filterWithPagination = void 0;
 const filterWithPagination = (model, options) => __awaiter(void 0, void 0, void 0, function* () {
-    const { page = 1, limit = 10, search, searchFields = [], filters = {}, populate = [], } = options;
+    const { page = 1, limit = 10, search, searchFields = [], filters = {}, populate = [], sort = { createdAt: -1 } } = options;
     // ---- Build Query ----
     const query = {};
     // Search
@@ -28,10 +28,7 @@ const filterWithPagination = (model, options) => __awaiter(void 0, void 0, void 
     // Pagination
     const skip = (page - 1) * limit;
     // ---- Execute Query ----
-    const [data, total] = yield Promise.all([
-        model.find(query).skip(skip).limit(limit).populate(populate),
-        model.countDocuments(query),
-    ]);
+    const [data, total] = yield Promise.all([model.find(query).sort(sort).skip(skip).limit(limit).populate(populate), model.countDocuments(query)]);
     return {
         meta: {
             page,
