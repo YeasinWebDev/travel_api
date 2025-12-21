@@ -42,7 +42,7 @@ const getAllDestinations = async (req: Request, res: Response, next: NextFunctio
   try {
     const result = await DestinationService.getAllDestinations(
       parseInt((req.query.page as string) || "1"),
-      parseInt((req.query.limit as string) || "5"),
+      parseInt((req.query.limit as string) || "6"),
       req.query.search as string,
       req.query.division as string,
       req.query.bestTimeToVisit as string

@@ -43,7 +43,7 @@ const deleteTrip = async (req: Request, res: Response, next: NextFunction) => {
 const getAllTrip = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { page, limit, trip, startDate, endDate } = req.query;
-    const result = await TripService.getAllTrip(parseInt((page as string) || "1"), parseInt((limit as string) || "5"), trip as string, startDate as string, endDate as string);
+    const result = await TripService.getAllTrip(parseInt((page as string) || "1"), parseInt((limit as string) || "6"), trip as string, startDate as string, endDate as string);
     sendResponse(res, 200, "Trip fetched successfully", result);
   } catch (error) {
     next(error);
