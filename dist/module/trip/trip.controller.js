@@ -53,7 +53,7 @@ const deleteTrip = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
 const getAllTrip = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { page, limit, trip, startDate, endDate } = req.query;
-        const result = yield trip_service_1.TripService.getAllTrip(parseInt(page || "1"), parseInt(limit || "5"), trip, startDate, endDate);
+        const result = yield trip_service_1.TripService.getAllTrip(parseInt(page || "1"), parseInt(limit || "6"), trip, startDate, endDate);
         (0, sendResponse_1.sendResponse)(res, 200, "Trip fetched successfully", result);
     }
     catch (error) {

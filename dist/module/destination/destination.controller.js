@@ -49,7 +49,7 @@ const imagesUploader = (req, res) => __awaiter(void 0, void 0, void 0, function*
 exports.imagesUploader = imagesUploader;
 const getAllDestinations = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const result = yield destination_service_1.DestinationService.getAllDestinations(parseInt(req.query.page || "1"), parseInt(req.query.limit || "5"), req.query.search, req.query.division, req.query.bestTimeToVisit);
+        const result = yield destination_service_1.DestinationService.getAllDestinations(parseInt(req.query.page || "1"), parseInt(req.query.limit || "6"), req.query.search, req.query.division, req.query.bestTimeToVisit);
         (0, sendResponse_1.sendResponse)(res, 200, "Destination fetched successfully", result);
     }
     catch (error) {
